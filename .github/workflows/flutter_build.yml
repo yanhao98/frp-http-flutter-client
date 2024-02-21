@@ -26,10 +26,10 @@ jobs:
         # √  Built build\windows\x64\runner\Release\frp_http_flutter_client.exe (0.1MB).
         if: startsWith(matrix.os, 'windows')
 
-
-      - run: |
-          ls build/macos/Build/Products/Release
-          ls build/windows/x64/runner/Release
+      - run: ls build/macos/Build/Products/Release
+        if: startsWith(matrix.os, 'macos')
+      - run: ls build/windows/x64/runner/Release
+        if: startsWith(matrix.os, 'windows')
 
       - name: Set up env
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
