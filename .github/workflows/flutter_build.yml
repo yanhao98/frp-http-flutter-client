@@ -2,6 +2,7 @@ on:
   push:
 env:
   APP_NAME: ''
+  archive_path: ''
 jobs:
   build:
     name: Build
@@ -18,22 +19,25 @@ jobs:
             channel: 'stable'
             cache: true
       - run: flutter --version
+
       - run: flutter build macos
         if: startsWith(matrix.os, 'macos')
       - run: flutter build windows
+        # √  Built build\windows\x64\runner\Release\frp_http_flutter_client.exe (0.1MB).
         if: startsWith(matrix.os, 'windows')
+
       - name: Set up env
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
 
-      - name: Archive ${{ env.APP_NAME }}
+      - name: Archive ${{ matrix.os }}
         if: startsWith(matrix.os, 'macos')
         run: |
           tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
           echo "archive_path=${{ env.APP_NAME }}.tar.gz" >> $GITHUB_ENV
-      - name: Archive ${{ env.APP_NAME }}
+      - name: Archive ${{ matrix.os }}
         if: startsWith(matrix.os, 'windows')
         run: |
-          7z a -tzip ${{ env.APP_NAME }}.zip build/windows/runner/Release
+          7z a -tzip ${{ env.APP_NAME }}.zip build/windows/x64/runner/Release
           echo "archive_path=${{ env.APP_NAME }}.zip" >> $GITHUB_ENV
 
       - name: Send mail
