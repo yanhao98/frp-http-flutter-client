@@ -43,10 +43,11 @@ jobs:
       - name: Archive windows
         if: startsWith(matrix.os, 'windows')
         run: |
-          7z a -tzip ${{ env.APP_NAME }}-windows.zip build/windows/x64/runner/Release
-          echo "archive_path=${{ env.APP_NAME }}-windows.zip" >> $GITHUB_ENV
+          7z a -tzip windows.zip build/windows/x64/runner/Release
+          echo "archive_path=windows.zip" >> $GITHUB_ENV
       
       - name: Check env
+        if: always()
         run: |
           echo "APP_NAME=${{ env.APP_NAME }}"
           echo "archive_path=${{ env.archive_path }}"
