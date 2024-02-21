@@ -1,8 +1,8 @@
 on:
   push:
 env:
-  APP_NAME: ''
-  archive_path: ''
+  APP_NAME: ""
+  archive_path: ""
 jobs:
   build:
     name: Build
@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-            channel: 'stable'
-            cache: true
+          channel: "stable"
+          cache: true
       - run: flutter --version
 
       - run: flutter build macos
@@ -34,6 +34,12 @@ jobs:
       - name: Set up env macos
         if: startsWith(matrix.os, 'macos')
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
+      - name: Set up env windows
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          $appName = (Select-String -Path .\pubspec.yaml -Pattern 'name:' | %{ $_.Line.Split(' ')[1] })
+          echo "APP_NAME=$appName" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
 
       - name: Archive macos
         if: startsWith(matrix.os, 'macos')
@@ -44,8 +50,9 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: |
           7z a -tzip windows.zip build/windows/x64/runner/Release
-          echo "archive_path=windows.zip" >> $GITHUB_ENV
-      
+          echo "archive_path=windows.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
+
       - name: Check env
         if: always()
         run: |
@@ -57,7 +64,7 @@ jobs:
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
           subject: Flutter CI
-          body: 'Build completed. file: ${{ env.archive_path }}'
+          body: "Build completed. file: ${{ env.archive_path }}"
           to: i@oo1.dev
           from: Flutter Build
           attachments: ${{ env.archive_path }}
