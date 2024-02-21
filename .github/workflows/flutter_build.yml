@@ -1,5 +1,7 @@
 on:
   push:
+env:
+  APP_NAME: ''
 jobs:
   build:
     name: Build
@@ -8,6 +10,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+          - os: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -15,12 +18,22 @@ jobs:
             channel: 'stable'
             cache: true
       - run: flutter --version
+
       - run: flutter build macos
       - name: Set up env
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
-      - run: ls -l build/macos/Build/Products/Release/
+
       - name: Archive ${{ env.APP_NAME }}
-        run: tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
+          echo "archive_path=${{ env.APP_NAME }}.tar.gz" >> $GITHUB_ENV
+      - name: Archive ${{ env.APP_NAME }}
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          7z a -tzip ${{ env.APP_NAME }}.zip build/windows/runner/Release
+          echo "archive_path=${{ env.APP_NAME }}.zip" >> $GITHUB_ENV
+
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
@@ -28,5 +41,5 @@ jobs:
           subject: Flutter Build
           to: i@oo1.dev
           from: Flutter Build
-          attachments: ${{ env.APP_NAME }}.tar.gz
+          attachments: ${{ env.archive_path }}
           priority: high
