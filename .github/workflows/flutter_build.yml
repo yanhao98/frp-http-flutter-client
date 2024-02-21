@@ -16,4 +16,17 @@ jobs:
             cache: true
       - run: flutter --version
       - run: flutter build macos
+      - name: Set up env
+        run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
       - run: ls -l build/macos/Build/Products/Release/
+      - name: Archive ${{ env.APP_NAME }}
+        run: tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          connection_url: ${{secrets.MAIL_CONNECTION}}
+          subject: Flutter Build
+          to: i@oo1.dev
+          from: Flutter Build
+          attachments: ${{ env.APP_NAME }}.tar.gz
+          priority: high
