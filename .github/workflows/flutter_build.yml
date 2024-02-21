@@ -38,13 +38,13 @@ jobs:
       - name: Archive macos
         if: startsWith(matrix.os, 'macos')
         run: |
-          tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
-          echo "archive_path=${{ env.APP_NAME }}.tar.gz" >> $GITHUB_ENV
+          tar -czf ${{ env.APP_NAME }}-macos.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
+          echo "archive_path=${{ env.APP_NAME }}-macos.tar.gz" >> $GITHUB_ENV
       - name: Archive windows
         if: startsWith(matrix.os, 'windows')
         run: |
-          7z a -tzip ${{ env.APP_NAME }}.zip build/windows/x64/runner/Release
-          echo "archive_path=${{ env.APP_NAME }}.zip" >> $GITHUB_ENV
+          7z a -tzip ${{ env.APP_NAME }}-windows.zip build/windows/x64/runner/Release
+          echo "archive_path=${{ env.APP_NAME }}-windows.zip" >> $GITHUB_ENV
       
       - name: Check env
         run: |
