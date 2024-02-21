@@ -31,7 +31,8 @@ jobs:
       - run: ls build/windows/x64/runner/Release
         if: startsWith(matrix.os, 'windows')
 
-      - name: Set up env
+      - name: Set up env macos
+        if: startsWith(matrix.os, 'macos')
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
 
       - name: Archive macos
@@ -44,6 +45,11 @@ jobs:
         run: |
           7z a -tzip ${{ env.APP_NAME }}.zip build/windows/x64/runner/Release
           echo "archive_path=${{ env.APP_NAME }}.zip" >> $GITHUB_ENV
+      
+      - name: Check env
+        run: |
+          echo "APP_NAME=${{ env.APP_NAME }}"
+          echo "archive_path=${{ env.archive_path }}"
 
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
