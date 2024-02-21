@@ -18,8 +18,10 @@ jobs:
             channel: 'stable'
             cache: true
       - run: flutter --version
-
       - run: flutter build macos
+        if: startsWith(matrix.os, 'macos')
+      - run: flutter build windows
+        if: startsWith(matrix.os, 'windows')
       - name: Set up env
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
 
