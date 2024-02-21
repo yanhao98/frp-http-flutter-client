@@ -29,12 +29,12 @@ jobs:
       - name: Set up env
         run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
 
-      - name: Archive ${{ matrix.os }}
+      - name: Archive macos
         if: startsWith(matrix.os, 'macos')
         run: |
           tar -czf ${{ env.APP_NAME }}.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
           echo "archive_path=${{ env.APP_NAME }}.tar.gz" >> $GITHUB_ENV
-      - name: Archive ${{ matrix.os }}
+      - name: Archive windows
         if: startsWith(matrix.os, 'windows')
         run: |
           7z a -tzip ${{ env.APP_NAME }}.zip build/windows/x64/runner/Release
@@ -44,7 +44,8 @@ jobs:
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
-          subject: Flutter Build
+          subject: Flutter CI
+          body: 'Build completed. file: ${{ env.archive_path }}'
           to: i@oo1.dev
           from: Flutter Build
           attachments: ${{ env.archive_path }}
