@@ -13,12 +13,7 @@ jobs:
           - os: macos-latest
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          cache: true
-      - run: flutter --version
+      - uses: ./.github/actions/checkout-and-setup-flutter
 
       - run: flutter build macos
         if: startsWith(matrix.os, 'macos')
@@ -60,6 +55,7 @@ jobs:
           echo "archive_path=${{ env.archive_path }}"
 
       - name: Send mail
+        if: false
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}

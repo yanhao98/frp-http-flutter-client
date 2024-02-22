@@ -1,0 +1,14 @@
+name: "Checkout and Setup Flutter"
+description: "Checkout code and setup Flutter"
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout Code"
+      uses: actions/checkout@v4
+    - name: "Setup Flutter"
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        cache: true
+    - run: flutter --version
+      shell: bash
