@@ -16,6 +16,7 @@ runs:
       shell: bash
     - run: flutter --version
       shell: bash
+
     - id: get-app-name
       shell: bash
       run: |
