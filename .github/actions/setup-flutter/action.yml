@@ -1,10 +1,14 @@
 name: "Checkout and Setup Flutter"
 description: "Checkout code and setup Flutter"
+outputs:
+  app-name:
+    description: "The name of the app from pubspec.yaml"
+    value: '${{ steps.get-app-name.outputs.app-name }}'
 runs:
   using: "composite"
   steps:
     - name: "Setup Flutter"
-      uses: subosito/flutter-action@v2
+      uses: subosito/flutter-action@v2 # https://github.com/subosito/flutter-action
       with:
         channel: "stable"
         cache: true
@@ -12,3 +16,7 @@ runs:
       shell: bash
     - run: flutter --version
       shell: bash
+    - id: get-app-name
+      shell: bash
+      run: |
+        echo "app-name=$(grep 'name: ' pubspec.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
