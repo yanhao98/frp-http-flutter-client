@@ -16,9 +16,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-flutter
         id: flutter-setup
+      - id: get-app-name
+        run: |
+          echo "app-name=$(grep 'name: ' pubspec.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
+  
       - name: Check env
         run: |
-          echo "app-name=${{ steps.flutter-setup.outputs.app-name }}"
+          echo "app-name=${{ steps.get-app-name.outputs.app-name }}"
 
       - name: Build
         id: build
@@ -26,7 +30,7 @@ jobs:
           flutter build ${{ matrix.os }}
           case ${{ matrix.os }} in
             macos)
-              echo "archive_path=build/macos/Build/Products/Release/${{ steps.flutter-setup.outputs.app-name }}.app" >> $GITHUB_OUTPUT
+              echo "archive_path=build/macos/Build/Products/Release/${{ steps.get-app-name.outputs.app-name }}.app" >> $GITHUB_OUTPUT
               ;;
             windows)
               echo "archive_path=build/windows/x64/runner/Release" >> $GITHUB_OUTPUT
@@ -37,14 +41,21 @@ jobs:
         run: |
           case ${{ matrix.os }} in
             macos)
-              tar -czf ${{ steps.flutter-setup.outputs.app-name }}_macos.tar.gz ${{ steps.build.outputs.archive_path }}
-              echo "artifact_path=${{ steps.flutter-setup.outputs.app-name }}_macos.tar.gz" >> $GITHUB_OUTPUT
+              tar -czf ${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz ${{ steps.build.outputs.archive_path }}
+              echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz" >> $GITHUB_OUTPUT
               ;;
             windows)
-              7z a -tzip ${{ steps.flutter-setup.outputs.app-name }}_windows.zip ${{ steps.build.outputs.archive_path }}
-              echo "artifact_path=${{ steps.flutter-setup.outputs.app-name }}_windows.zip" >> $GITHUB_OUTPUT
+              7z a -tzip ${{ steps.get-app-name.outputs.app-name }}_windows.zip ${{ steps.build.outputs.archive_path }}
+              echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_windows.zip" >> $GITHUB_OUTPUT
               ;;
           esac
+      # - name: Release
+      # uses: softprops/action-gh-release@v1
+      # if: startsWith(github.ref, 'refs/tags/')
+      # env:
+      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # with:
+      #   files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
 
       - name: Send mail
         # if: false
