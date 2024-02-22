@@ -16,53 +16,53 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-flutter
 
-      - run: flutter build macos
-        if: startsWith(matrix.os, 'macos')
-      - run: flutter build windows
-        # √  Built build\windows\x64\runner\Release\frp_http_flutter_client.exe (0.1MB).
-        if: startsWith(matrix.os, 'windows')
+      # - run: flutter build macos
+      #   if: startsWith(matrix.os, 'macos')
+      # - run: flutter build windows
+      #   # √  Built build\windows\x64\runner\Release\frp_http_flutter_client.exe (0.1MB).
+      #   if: startsWith(matrix.os, 'windows')
 
-      - run: ls build/macos/Build/Products/Release
-        if: startsWith(matrix.os, 'macos')
-      - run: ls build/windows/x64/runner/Release
-        if: startsWith(matrix.os, 'windows')
+      # - run: ls build/macos/Build/Products/Release
+      #   if: startsWith(matrix.os, 'macos')
+      # - run: ls build/windows/x64/runner/Release
+      #   if: startsWith(matrix.os, 'windows')
 
-      - name: Set up env macos
-        if: startsWith(matrix.os, 'macos')
-        run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
-      - name: Set up env windows
-        if: startsWith(matrix.os, 'windows')
-        run: |
-          $appName = (Select-String -Path .\pubspec.yaml -Pattern 'name:' | %{ $_.Line.Split(' ')[1] })
-          echo "APP_NAME=$appName" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: pwsh
+      # - name: Set up env macos
+      #   if: startsWith(matrix.os, 'macos')
+      #   run: echo "APP_NAME=$(grep 'name:' pubspec.yaml | awk '{print $2}')" >> $GITHUB_ENV
+      # - name: Set up env windows
+      #   if: startsWith(matrix.os, 'windows')
+      #   run: |
+      #     $appName = (Select-String -Path .\pubspec.yaml -Pattern 'name:' | %{ $_.Line.Split(' ')[1] })
+      #     echo "APP_NAME=$appName" | Out-File -FilePath $env:GITHUB_ENV -Append
+      #   shell: pwsh
 
-      - name: Archive macos
-        if: startsWith(matrix.os, 'macos')
-        run: |
-          tar -czf ${{ env.APP_NAME }}-macos.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
-          echo "archive_path=${{ env.APP_NAME }}-macos.tar.gz" >> $GITHUB_ENV
-      - name: Archive windows
-        if: startsWith(matrix.os, 'windows')
-        run: |
-          7z a -tzip ${{ env.APP_NAME }}-windows.zip build/windows/x64/runner/Release
-          echo "archive_path=${{ env.APP_NAME }}-windows.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
-        shell: pwsh
+      # - name: Archive macos
+      #   if: startsWith(matrix.os, 'macos')
+      #   run: |
+      #     tar -czf ${{ env.APP_NAME }}-macos.tar.gz build/macos/Build/Products/Release/${{ env.APP_NAME }}.app
+      #     echo "archive_path=${{ env.APP_NAME }}-macos.tar.gz" >> $GITHUB_ENV
+      # - name: Archive windows
+      #   if: startsWith(matrix.os, 'windows')
+      #   run: |
+      #     7z a -tzip ${{ env.APP_NAME }}-windows.zip build/windows/x64/runner/Release
+      #     echo "archive_path=${{ env.APP_NAME }}-windows.zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+      #   shell: pwsh
 
-      - name: Check env
-        if: always()
-        run: |
-          echo "APP_NAME=${{ env.APP_NAME }}"
-          echo "archive_path=${{ env.archive_path }}"
+      # - name: Check env
+      #   if: always()
+      #   run: |
+      #     echo "APP_NAME=${{ env.APP_NAME }}"
+      #     echo "archive_path=${{ env.archive_path }}"
 
-      - name: Send mail
-        if: false
-        uses: dawidd6/action-send-mail@v3
-        with:
-          connection_url: ${{secrets.MAIL_CONNECTION}}
-          subject: Flutter CI
-          body: "Build completed. file: ${{ env.archive_path }}"
-          to: i@oo1.dev
-          from: Flutter Build
-          attachments: ${{ env.archive_path }}
-          priority: high
+      # - name: Send mail
+      #   if: false
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     connection_url: ${{secrets.MAIL_CONNECTION}}
+      #     subject: Flutter CI
+      #     body: "Build completed. file: ${{ env.archive_path }}"
+      #     to: i@oo1.dev
+      #     from: Flutter Build
+      #     attachments: ${{ env.archive_path }}
+      #     priority: high
