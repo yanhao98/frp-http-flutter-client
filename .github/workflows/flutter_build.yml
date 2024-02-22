@@ -5,7 +5,6 @@ defaults:
     shell: bash
 jobs:
   build:
-    name: Build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
@@ -14,9 +13,16 @@ jobs:
           - os: windows
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-flutter
-        id: flutter-setup
-      - id: get-app-name
+      - name: "Setup Flutter"
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+      - run: flutter --version
+        shell: bash
+
+      - name: Get app name
+        id: get-app-name
         run: |
           echo "app-name=$(grep 'name: ' pubspec.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
   
@@ -28,27 +34,36 @@ jobs:
         id: build
         run: |
           flutter build ${{ matrix.os }}
+
           case ${{ matrix.os }} in
             macos)
-              echo "archive_path=build/macos/Build/Products/Release/${{ steps.get-app-name.outputs.app-name }}.app" >> $GITHUB_OUTPUT
+              artifact_directory="build/macos/Build/Products/Release"
+              artifact_filename="${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz"
+              cd $artifact_directory
+              tar -czf $artifact_filename ${{ steps.get-app-name.outputs.app-name }}.app
               ;;
             windows)
-              echo "archive_path=build/windows/x64/runner/Release" >> $GITHUB_OUTPUT
+              artifact_directory="build/windows/x64/runner/Release"
+              artifact_filename="${{ steps.get-app-name.outputs.app-name }}_windows.zip"
+              cd $artifact_directory
+              7z a -tzip $artifact_filename .
               ;;
-          esac
-      - name: Archive
-        id: archive
-        run: |
-          case ${{ matrix.os }} in
-            macos)
-              tar -czf ${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz ${{ steps.build.outputs.archive_path }}
-              echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz" >> $GITHUB_OUTPUT
-              ;;
-            windows)
-              7z a -tzip ${{ steps.get-app-name.outputs.app-name }}_windows.zip ${{ steps.build.outputs.archive_path }}
-              echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_windows.zip" >> $GITHUB_OUTPUT
-              ;;
-          esac
+              esac
+          echo "artifact_path=${artifact_directory}/${artifact_filename}" >> $GITHUB_OUTPUT
+      # - name: Archive
+      #   id: archive
+      #   run: |
+      #     case ${{ matrix.os }} in
+      #       macos)
+      #         tar -czf ${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz ${{ steps.build.outputs.archive_path }}
+      #         echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz" >> $GITHUB_OUTPUT
+      #         ;;
+      #       windows)
+      #         7z a -tzip ${{ steps.get-app-name.outputs.app-name }}_windows.zip ${{ steps.build.outputs.archive_path }}
+      #         echo "artifact_path=${{ steps.get-app-name.outputs.app-name }}_windows.zip" >> $GITHUB_OUTPUT
+      #         ;;
+      #     esac
+
       # - name: Release
       # uses: softprops/action-gh-release@v1
       # if: startsWith(github.ref, 'refs/tags/')
@@ -63,8 +78,8 @@ jobs:
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
           subject: Flutter CI
-          body: "Build completed. file: ${{ steps.archive.outputs.artifact_path }}"
+          body: "Build completed. file: ${{ steps.build.outputs.artifact_path }}"
           to: i@oo1.dev
           from: Flutter Build
-          attachments: ${{ steps.archive.outputs.artifact_path }}
+          attachments: ${{ steps.build.outputs.artifact_path }}
           priority: high
