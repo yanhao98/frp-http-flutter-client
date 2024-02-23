@@ -6,18 +6,19 @@ defaults:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    # https://docs.github.com/zh/actions/using-jobs/choosing-the-runner-for-a-job#选择-github-托管的运行器
     strategy:
       matrix:
         include:
           - os: macos-14
           - os: windows-latest
     steps:
-      - name: "Print OS"
-        if: runner.os == 'Windows'
-        run: |
-          wmic os get osarchitecture
-          # OSArchitecture  
-          # 64-bit        
+      # - name: "Print OS"
+      #   if: runner.os == 'Windows'
+      #   run: |
+      #     wmic os get osarchitecture
+      #     # OSArchitecture  
+      #     # 64-bit        
 
       - uses: actions/checkout@v4
       - name: "Setup Flutter"
@@ -40,10 +41,10 @@ jobs:
       - name: Build
         id: build
         run: |
-          build-command=$(echo ${{ matrix.os }} | awk -F'-' '{print $1}')
-          flutter build $build-command
+          build_command=$(echo ${{ matrix.os }} | awk -F'-' '{print $1}')
+          flutter build $build_command
 
-          case $build-command in
+          case $build_command in
             macos)
               artifact_directory="build/macos/Build/Products/Release"
               artifact_filename="${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz"
