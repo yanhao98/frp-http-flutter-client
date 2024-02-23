@@ -5,17 +5,19 @@ defaults:
     shell: bash
 jobs:
   build:
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - os: macos
-          - os: windows
+          - os: macos-14
+          - os: windows-latest
     steps:
       - name: "Print OS"
         if: runner.os == 'Windows'
         run: |
           wmic os get osarchitecture
+          # OSArchitecture  
+          # 64-bit        
 
       - uses: actions/checkout@v4
       - name: "Setup Flutter"
@@ -38,9 +40,10 @@ jobs:
       - name: Build
         id: build
         run: |
-          flutter build ${{ matrix.os }}
+          build-command=$(echo ${{ matrix.os }} | awk -F'-' '{print $1}')
+          flutter build $build-command
 
-          case ${{ matrix.os }} in
+          case $build-command in
             macos)
               artifact_directory="build/macos/Build/Products/Release"
               artifact_filename="${{ steps.get-app-name.outputs.app-name }}_macos.tar.gz"
@@ -80,7 +83,7 @@ jobs:
       #   files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
 
       - name: Send mail
-        # if: false
+        if: false
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
