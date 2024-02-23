@@ -17,7 +17,9 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           echo %PROCESSOR_ARCHITECTURE%
-      #     wmic os get osarchitecture
+          wmic cpu get AddressWidth
+          wmic os get osarchitecture
+        shell: cmd
       #     # OSArchitecture  
       #     # 64-bit        
 
