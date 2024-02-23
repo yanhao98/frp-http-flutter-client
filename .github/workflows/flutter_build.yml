@@ -50,6 +50,8 @@ jobs:
               ;;
               esac
           echo "artifact_path=${artifact_directory}/${artifact_filename}" >> $GITHUB_OUTPUT
+
+          ls -al $artifact_directory
       # - name: Archive
       #   id: archive
       #   run: |
