@@ -12,7 +12,8 @@ jobs:
           - os: macos
           - os: windows
     steps:
-      - if: startsWith(${{ matrix.os }}, 'windows')
+      - name: "Print OS"
+        if: runner.os == 'Windows'
         run: |
           wmic os get osarchitecture
 
