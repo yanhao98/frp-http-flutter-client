@@ -13,13 +13,13 @@ jobs:
           - os: macos-13
           - os: windows-latest
     steps:
-      - name: "Print OS"
-        if: runner.os == 'Windows'
-        run: |
-          echo %PROCESSOR_ARCHITECTURE%
-          wmic cpu get AddressWidth
-          wmic os get osarchitecture
-        shell: cmd
+      # - name: "Print OS"
+      #   if: runner.os == 'Windows'
+      #   run: |
+      #     echo %PROCESSOR_ARCHITECTURE%
+      #     wmic cpu get AddressWidth
+      #     wmic os get osarchitecture
+      #   shell: cmd
       #     # OSArchitecture  
       #     # 64-bit        
 
