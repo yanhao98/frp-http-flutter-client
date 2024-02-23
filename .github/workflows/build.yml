@@ -12,6 +12,10 @@ jobs:
           - os: macos
           - os: windows
     steps:
+      - if: startsWith(${{ matrix.os }}, 'windows')
+        run: |
+          wmic os get osarchitecture
+
       - uses: actions/checkout@v4
       - name: "Setup Flutter"
         uses: subosito/flutter-action@v2
