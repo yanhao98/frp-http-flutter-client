@@ -58,42 +58,42 @@ class _MyHomePageState extends State<MyHomePage> {
                       debugPrint('macOsInfo: $macOsInfo');
                       debugPrint('macOsInfo.arch: ${macOsInfo.arch}');
                       // {"arch":"arm64","majorVersion":14,"kernelVersion":"Darwin Kernel Version 23.3.0: Wed Dec 20 21:30:44 PST 2023; root:xnu-10002.81.5~7/RELEASE_ARM64_T6000","osRelease":"Version 14.3 (Build 23D56)","cpuFrequency":0,"activeCPUs":10,"model":"MacBookPro18,2","memorySize":34359738368,"systemGUID":"DF772E83-CFAF-5284-9A05-8F65438A657F","computerName":"严浩的MacBook Pro","patchVersion":0,"minorVersion":3,"hostName":"Darwin"}
-                      content = jsonEncode(macOsInfo.data);
+                      content = jsonEncode(macOsInfo.data.toString());
                     }
                     if (Platform.isWindows) {
                       final windowsInfo = await deviceInfo.windowsInfo;
                       debugPrint('windowsInfo: $windowsInfo');
                       debugPrint(
                           'windowsInfo.computerName: ${windowsInfo.computerName}');
-                      content = jsonEncode(windowsInfo.data);
+                          // "{computerName: 2E76, numberOfCores: 4, systemMemoryInMegabytes: 8192, userName: yanhao, majorVersion: 10, minorVersion: 0, buildNumber: 22000, platformId: 2, csdVersion: , servicePackMajor: 0, servicePackMinor: 0, suitMask: 768, productType: 1, reserved: 0, buildLab: 22000.co_release.210604-1628, buildLabEx: 22000.1.arm64fre.co_release.210604-1628, digitalProductId: [164, 0, 0, 0, 3, 0, 0, 0, 48, 48, 51, 50, 54, 45, 49, 48, 48, 48, 48, 45, 48, 48, 48, 48, 48, 45, 65, 65, 50, 54, 52, 0, 189, 12, 0, 0, 91, 84, 72, 93, 88, 49, 57, 45, 57, 56, 56, 54, 56, 0, 0, 0, 189, 12, 0, 0, 0, 0, 188, 179, 189, 197, 115, 255, 9, 118, 9, 0, 0, 0, 0, 0, 152, 151, 35, 99, 0, 108, 34, 187, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 103, 176, 69, 253], displayVersion: 21H2, editionId: Core, installDate: 2022-09-15 21:23:58.000, productId: 00326-10000-00000-AA264, productName: Windows 11 Home, registeredOwner: 严浩, releaseId: 2009, deviceId: {154EBC95-597F-48AF-8BA9-EA9BBE6D1590}}"
+                      content = jsonEncode(windowsInfo.data.toString());
                     }
 
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('DeviceInfo'),
-                            content: TextField(
-                              controller: TextEditingController(text: content),
-                              maxLines: 10,
-                              readOnly: true,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                              ),
+                    if (!context.mounted) return;
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('DeviceInfo'),
+                          content: TextField(
+                            controller: TextEditingController(text: content),
+                            maxLines: 10,
+                            readOnly: true,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   child: const Text('Click me'),
                 ),
