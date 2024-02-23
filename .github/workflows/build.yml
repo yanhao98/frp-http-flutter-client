@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-14
+          - os: macos-13
           - os: windows-latest
     steps:
       # - name: "Print OS"
