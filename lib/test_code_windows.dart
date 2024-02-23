@@ -121,3 +121,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 }
+
+void getWindowsArch() {
+  final result =
+      Process.runSync('cmd', ['/c', 'echo %PROCESSOR_ARCHITECTURE%']);
+  var content = result.stdout.toString().trim().toLowerCase();
+  debugPrint('content: $content'); // amd64
+}
