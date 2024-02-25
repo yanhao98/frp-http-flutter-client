@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 
 class LeftWidget extends StatelessWidget {
-  const LeftWidget({
-    super.key,
-  });
+  const LeftWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceVariant.withOpacity(0.3),
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            LeftItem(title: 'frp server', subtitle: 'frp.oo1.dev'),
-            LeftItem(title: 'frpc version', subtitle: '0.0.1'),
-          ],
+    return SizedBox(
+      width: 256 - 56,
+      child: Card(
+        elevation: 0,
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              LeftItem(title: 'frp server', subtitle: 'frp.oo1.dev'),
+              LeftItem(title: 'frpc version', subtitle: '0.0.1'),
+            ],
+          ),
         ),
       ),
     );
