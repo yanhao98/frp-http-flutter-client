@@ -256,6 +256,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  separated_row:
+    dependency: "direct main"
+    description:
+      name: separated_row
+      sha256: "2840cd80604c106372121e7df7a8482954bd095b90ed79cbc968316fc9f5fcea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.3"
   sky_engine:
     dependency: transitive
     description: flutter

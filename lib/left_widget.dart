@@ -16,8 +16,8 @@ class LeftWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              LeftItem(title: 'frp server', subtitle: 'frp.oo1.dev'),
-              LeftItem(title: 'frpc version', subtitle: '0.0.1'),
+              LeftItem(title: 'frps 服务器', subtitle: 'frp.oo1.dev'),
+              LeftItem(title: 'frpc 版本', subtitle: '0.0.1'),
             ],
           ),
         ),
