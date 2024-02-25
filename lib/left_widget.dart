@@ -30,7 +30,7 @@ class LeftWidget extends StatelessWidget {
               Obx(
                 () => LeftItem(
                   title: 'frpc 版本',
-                  subtitle: AppState.to.frpcInfo.value.version.toString(),
+                  subtitle: AppState.to.frpcVersion.value,
                 ),
               )
             ],

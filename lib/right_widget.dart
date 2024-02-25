@@ -82,7 +82,7 @@ class RightWidget extends StatelessWidget {
                   OutlinedButton(
                     onPressed: () async {
                       final process = await Process.start(
-                        AppState.to.frpcInfo.value.executableFilePath!,
+                        AppState.to.executableFilePath.value,
                         [
                           'http',
                           '--server-addr=146.56.128.30',
