@@ -1,4 +1,8 @@
+import './controller/app_state.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+var count = 0;
 
 class LeftWidget extends StatelessWidget {
   const LeftWidget({super.key});
@@ -11,13 +15,24 @@ class LeftWidget extends StatelessWidget {
       child: Card(
         elevation: 0,
         color: colorScheme.surfaceVariant.withOpacity(0.3),
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              LeftItem(title: 'frps 服务器', subtitle: 'frp.oo1.dev'),
-              LeftItem(title: 'frpc 版本', subtitle: '0.0.1'),
+              Obx(() {
+                debugPrint('count: ${++count}');
+                return LeftItem(
+                  title: 'frps 服务器',
+                  subtitle: AppState.to.frpsServer.value,
+                );
+              }),
+              Obx(
+                () => LeftItem(
+                  title: 'frpc 版本',
+                  subtitle: AppState.to.frpcInfo.value.version.toString(),
+                ),
+              )
             ],
           ),
         ),

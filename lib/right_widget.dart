@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:separated_row/separated_row.dart';
+
+import 'controller/app_state.dart';
 
 class RightWidget extends StatelessWidget {
   const RightWidget({super.key});
@@ -74,6 +79,36 @@ class RightWidget extends StatelessWidget {
                     onPressed: () {},
                     child: const Text('全部停止'),
                   ),
+                  OutlinedButton(
+                    onPressed: () async {
+                      final process = await Process.start(
+                        AppState.to.frpcInfo.value.executableFilePath!,
+                        [
+                          'http',
+                          '--server-addr=146.56.128.30',
+                          '--server-port=7000',
+                          '--local-ip=127.0.0.1',
+                          '--local-port=80',
+                          '--sd=flutter-dev',
+                          '--proxy-name=flutter-dev'
+                        ],
+                      );
+
+                      // 监听标准输出流
+                      process.stdout.transform(utf8.decoder).listen((data) {
+                        debugPrint('标准输出: $data');
+                      });
+
+                      // 监听错误输出流
+                      process.stderr.transform(utf8.decoder).listen((data) {
+                        debugPrint('错误输出: $data');
+                      });
+
+                      final exitCode = await process.exitCode;
+                      debugPrint('Exit code: $exitCode');
+                    },
+                    child: const Text('测试按钮'),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -106,7 +141,7 @@ class RightWidget extends StatelessWidget {
       ],
       rows: [
         ...List.generate(
-          5,
+          0,
           (index) => DataRow(
             cells: [
               const DataCell(
