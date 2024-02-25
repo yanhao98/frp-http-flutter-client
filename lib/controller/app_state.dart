@@ -68,8 +68,12 @@ class AppState extends GetxController {
       arch = macOsInfo.arch;
       systemId = macOsInfo.systemGUID;
     } else if (Platform.isWindows) {
-      arch = getWIndowsArch();
       final windowsInfo = await deviceInfo.windowsInfo;
+      if (windowsInfo.buildLabEx.toLowerCase().contains('arm64')) {
+        arch = 'arm64';
+      } else {
+        arch = 'amd64';
+      }
       systemId = windowsInfo.deviceId;
     }
 
@@ -80,7 +84,7 @@ class AppState extends GetxController {
   }
 }
 
-String getWIndowsArch() {
+String _getWIndowsArch() {
   final result =
       Process.runSync('cmd', ['/c', 'echo %PROCESSOR_ARCHITECTURE%']);
   return result.stdout.toString().trim().toLowerCase();
