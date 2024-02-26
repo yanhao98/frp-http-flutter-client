@@ -24,8 +24,8 @@ class LeftWidget extends StatelessWidget {
               LeftItem(
                 title: const Text('frps 服务器'),
                 subtitle: Obx(() {
-                  debugPrint('count: ${++count}');
-                  return Text(AppState.to.frpsServer.value);
+                  debugPrint('[left_widget] count: ${++count}');
+                  return Text("${AppState.to.frpsServer}");
                 }),
               ),
               LeftItem(
