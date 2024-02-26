@@ -13,10 +13,8 @@ class AppState extends GetxController {
   RxString frpsServer = 'fro.oo1.dev'.obs;
   late String systemArch = '';
   late String subdomainPrefix;
-  // frpc 存放的目录
-  late String workingDirectory;
-  RxString frpcVersion = ''.obs;
-
+  late String frpcDirectory;
+  Rx<String?> frpcVersion = Rx(null);
   String get frpcExecutablePath {
     late String filename;
     if (Platform.isMacOS) {
@@ -24,7 +22,7 @@ class AppState extends GetxController {
     } else if (Platform.isWindows) {
       filename = 'frpc_windows_$systemArch.exe';
     }
-    return path.join(workingDirectory, filename);
+    return path.join(frpcDirectory, filename);
   }
 
   @override
@@ -33,24 +31,19 @@ class AppState extends GetxController {
     systemArch = deviceInfo.arch;
     subdomainPrefix = deviceInfo.systemId;
     await _setWorkingDirectory();
-    _checkFrpc();
+    await checkFrpc();
 
     debugPrint('[AppState] init complete');
     super.onInit();
   }
 
-  Future<void> _checkFrpc() async {
-    debugPrint('[_checkFrpc] frpcExecutablePath: $frpcExecutablePath');
+  Future<void> checkFrpc() async {
     final file = File(frpcExecutablePath);
-    if (!file.existsSync()) {
-      debugPrint('$frpcExecutablePath 不存在，开始下载');
-      await _downloadFrpc();
-      debugPrint('下载完成');
+    if (file.existsSync()) {
+      final result = await Process.run(frpcExecutablePath, ['-v']);
+      debugPrint('result: ${result.stdout}');
+      frpcVersion.value = '${result.stdout}'.trim();
     }
-
-    final result = await Process.run(frpcExecutablePath, ['-v']);
-    debugPrint('result: ${result.stdout}');
-    frpcVersion.value = '${result.stdout}'.trim();
   }
 
   Future<void> _downloadFrpc() async {
@@ -69,11 +62,12 @@ class AppState extends GetxController {
   Future<void> _setWorkingDirectory() async {
     if (Platform.isMacOS) {
       final directory = await getTemporaryDirectory();
-      workingDirectory = path.join(directory.path, 'frp-http-client');
+      frpcDirectory = path.join(directory.path, 'frp-http-client');
     } else if (Platform.isWindows) {
       final dir = path.dirname(Platform.resolvedExecutable);
-      workingDirectory = path.join(dir);
+      frpcDirectory = path.join(dir, 'frpc');
     }
+    Directory(frpcDirectory).createSync(recursive: true);
   }
 }
 

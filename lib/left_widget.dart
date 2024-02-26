@@ -30,7 +30,7 @@ class LeftWidget extends StatelessWidget {
                 subtitle: Obx(
                   () {
                     debugPrint('[left_widget] count: ${++count}');
-                    return Text(AppState.to.frpcVersion.value);
+                    return Text("${AppState.to.frpcVersion}");
                   },
                 ),
               )
