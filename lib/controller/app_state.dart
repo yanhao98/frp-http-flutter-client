@@ -12,32 +12,42 @@ class AppState extends GetxController {
   RxString frpsServer = 'fro.oo1.dev'.obs;
   late String systemArch = '';
   late String subdomainPrefix;
+  // frpc 存放的目录
   late String workingDirectory;
   RxString frpcVersion = ''.obs;
 
-  @override
-  Future<void> onInit() async {
-    await initFrpcInfo();
-    debugPrint('[AppState] init complete');
-    debugPrint('[AppState] workingDirectory: $workingDirectory');
-    super.onInit();
+  String get frpcExecutablePath {
+    late String filename;
+    if (Platform.isMacOS) {
+      filename = 'frpc_darwin_$systemArch';
+    } else if (Platform.isWindows) {
+      filename = 'frpc_windows_$systemArch.exe';
+    }
+    return path.join(workingDirectory, filename);
   }
 
-  initFrpcInfo() async {
+  @override
+  Future<void> onInit() async {
     var deviceInfo = await _getDeviceInfo();
     systemArch = deviceInfo.arch;
     subdomainPrefix = deviceInfo.systemId;
     _setWorkingDirectory();
 
+    debugPrint('[AppState] init complete');
+    debugPrint('[AppState] workingDirectory: $workingDirectory');
+    debugPrint('[AppState] frpcExecutablePath: $frpcExecutablePath');
+    super.onInit();
+  }
+
+  Future<void> _checkFrpc() async {
+    //
+  }
+
+  _initFrpcInfo() async {
     // final directory = await getTemporaryDirectory();
     // debugPrint('directory.path: ${directory.path}');
     // late String filePath;
-    // late String filename;
-    // if (Platform.isMacOS) {
-    //   filename = 'frpc_darwin_$systemArch';
-    // } else if (Platform.isWindows) {
-    //   filename = 'frpc_windows_$systemArch.exe';
-    // }
+
     // filePath = path.join(directory.path, 'frp-http-client', filename);
     // debugPrint('filePath: $filePath');
     // final file = File(filePath);
@@ -66,7 +76,7 @@ class AppState extends GetxController {
       workingDirectory = path.join(directory.path, 'frp-http-client');
     } else if (Platform.isWindows) {
       final dir = path.dirname(Platform.resolvedExecutable);
-      workingDirectory = path.join(dir, 'frp-http-client');
+      workingDirectory = path.join(dir);
     }
   }
 }
