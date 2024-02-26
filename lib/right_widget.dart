@@ -1,11 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:separated_row/separated_row.dart';
-
-import 'controller/app_state.dart';
 
 class RightWidget extends StatelessWidget {
   const RightWidget({super.key});
@@ -81,7 +76,7 @@ class RightWidget extends StatelessWidget {
                   ),
                   OutlinedButton(
                     onPressed: () async {
-                      final process = await Process.start(
+                      /* final process = await Process.start(
                         AppState.to.executableFilePath.value,
                         [
                           'http',
@@ -105,7 +100,7 @@ class RightWidget extends StatelessWidget {
                       });
 
                       final exitCode = await process.exitCode;
-                      debugPrint('Exit code: $exitCode');
+                      debugPrint('Exit code: $exitCode'); */
                     },
                     child: const Text('测试按钮'),
                   ),

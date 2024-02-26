@@ -1,6 +1,7 @@
-import './controller/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import './controller/app_state.dart';
 
 var count = 0;
 
@@ -20,17 +21,17 @@ class LeftWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Obx(() {
-                debugPrint('count: ${++count}');
-                return LeftItem(
-                  title: 'frps 服务器',
-                  subtitle: AppState.to.frpsServer.value,
-                );
-              }),
-              Obx(
-                () => LeftItem(
-                  title: 'frpc 版本',
-                  subtitle: AppState.to.frpcVersion.value,
+              LeftItem(
+                title: const Text('frps 服务器'),
+                subtitle: Obx(() {
+                  debugPrint('count: ${++count}');
+                  return Text(AppState.to.frpsServer.value);
+                }),
+              ),
+              LeftItem(
+                title: const Text('frpc 版本'),
+                subtitle: Obx(
+                  () => Text(AppState.to.frpcVersion.value),
                 ),
               )
             ],
@@ -42,8 +43,8 @@ class LeftWidget extends StatelessWidget {
 }
 
 class LeftItem extends StatelessWidget {
-  final String title;
-  final String subtitle;
+  final Widget title;
+  final Widget subtitle;
 
   const LeftItem({
     super.key,
@@ -66,16 +67,16 @@ class LeftItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
+            DefaultTextStyle(
               style: Theme.of(context).textTheme.titleSmall!.copyWith(
                     fontWeight: FontWeight.normal,
                     color: Theme.of(context).colorScheme.primary,
                   ),
+              child: title,
             ),
-            Text(
-              subtitle,
-              style: Theme.of(context).textTheme.bodyMedium,
+            DefaultTextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!,
+              child: subtitle,
             ),
           ],
         ),
