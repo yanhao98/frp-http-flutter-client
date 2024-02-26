@@ -23,15 +23,15 @@ class LeftWidget extends StatelessWidget {
             children: <Widget>[
               LeftItem(
                 title: const Text('frps 服务器'),
-                subtitle: Obx(() {
-                  debugPrint('[left_widget] count: ${++count}');
-                  return Text("${AppState.to.frpsServer}");
-                }),
+                subtitle: Obx(() => Text("${AppState.to.frpsServer}")),
               ),
               LeftItem(
                 title: const Text('frpc 版本'),
                 subtitle: Obx(
-                  () => Text(AppState.to.frpcVersion.value),
+                  () {
+                    debugPrint('[left_widget] count: ${++count}');
+                    return Text(AppState.to.frpcVersion.value);
+                  },
                 ),
               )
             ],

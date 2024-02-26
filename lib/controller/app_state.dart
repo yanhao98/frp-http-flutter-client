@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as path;
@@ -31,43 +32,38 @@ class AppState extends GetxController {
     var deviceInfo = await _getDeviceInfo();
     systemArch = deviceInfo.arch;
     subdomainPrefix = deviceInfo.systemId;
-    _setWorkingDirectory();
+    await _setWorkingDirectory();
+    _checkFrpc();
 
     debugPrint('[AppState] init complete');
-    debugPrint('[AppState] workingDirectory: $workingDirectory');
-    debugPrint('[AppState] frpcExecutablePath: $frpcExecutablePath');
     super.onInit();
   }
 
   Future<void> _checkFrpc() async {
-    //
+    debugPrint('[_checkFrpc] frpcExecutablePath: $frpcExecutablePath');
+    final file = File(frpcExecutablePath);
+    if (!file.existsSync()) {
+      debugPrint('$frpcExecutablePath 不存在，开始下载');
+      await _downloadFrpc();
+      debugPrint('下载完成');
+    }
+
+    final result = await Process.run(frpcExecutablePath, ['-v']);
+    debugPrint('result: ${result.stdout}');
+    frpcVersion.value = '${result.stdout}'.trim();
   }
 
-  _initFrpcInfo() async {
-    // final directory = await getTemporaryDirectory();
-    // debugPrint('directory.path: ${directory.path}');
-    // late String filePath;
-
-    // filePath = path.join(directory.path, 'frp-http-client', filename);
-    // debugPrint('filePath: $filePath');
-    // final file = File(filePath);
-    // if (!file.existsSync()) {
-    //   // https://dl.19980901.xyz/frpc_darwin_arm64
-    //   debugPrint('文件不存在，开始下载');
-    //   await file.create(recursive: true);
-    //   final url = 'https://dl.19980901.xyz/frpc_darwin_$systemArch';
-    //   final request = await HttpClient().getUrl(Uri.parse(url));
-    //   final response = await request.close();
-    //   await response.pipe(file.openWrite());
-    // }
-    // if (Platform.isMacOS) {
-    //   await Process.run('chmod', ['+x', filePath]);
-    // }
-
-    // final result = await Process.run(filePath, ['-v']);
-    // debugPrint('result: ${result.stdout}');
-    // // executableFilePath.value = filePath;
-    // frpcVersion.value = result.stdout.toString().trim();
+  Future<void> _downloadFrpc() async {
+    late String url;
+    if (Platform.isMacOS) {
+      url = 'https://dl.19980901.xyz/frpc_darwin_$systemArch';
+    } else if (Platform.isWindows) {
+      url = 'https://dl.19980901.xyz/frpc_windows_$systemArch.exe';
+    }
+    await Dio().download(url, frpcExecutablePath);
+    if (Platform.isMacOS) {
+      await Process.run('chmod', ['+x', frpcExecutablePath]);
+    }
   }
 
   Future<void> _setWorkingDirectory() async {
