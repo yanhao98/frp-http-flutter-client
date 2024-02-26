@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 class AppState extends GetxController {
   static AppState get to => Get.find();
 
+  RxBool ready = false.obs;
   RxString frpsServer = 'fro.oo1.dev'.obs;
   late String systemArch = '';
   late String subdomainPrefix;
@@ -32,12 +33,14 @@ class AppState extends GetxController {
     subdomainPrefix = deviceInfo.systemId;
     await _setWorkingDirectory();
     await checkFrpc();
-
+    ready.value = true;
     debugPrint('[AppState] init complete');
     super.onInit();
   }
 
   Future<void> checkFrpc() async {
+    debugPrint('frpcExecutablePath: $frpcExecutablePath');
+
     final file = File(frpcExecutablePath);
     if (file.existsSync()) {
       final result = await Process.run(frpcExecutablePath, ['-v']);
@@ -46,7 +49,7 @@ class AppState extends GetxController {
     }
   }
 
-  Future<void> _downloadFrpc() async {
+  Future<void> downloadFrpc() async {
     late String url;
     if (Platform.isMacOS) {
       url = 'https://dl.19980901.xyz/frpc_darwin_$systemArch';
@@ -68,6 +71,13 @@ class AppState extends GetxController {
       frpcDirectory = path.join(dir, 'frpc');
     }
     Directory(frpcDirectory).createSync(recursive: true);
+    
+    if (kDebugMode) {
+      final file = File(frpcExecutablePath);
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
+    }
   }
 }
 

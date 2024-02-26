@@ -42,6 +42,8 @@ dependencies:
   separated_row: ^3.0.3
   get: ^4.6.6
   dio: ^5.4.1
+  separated_column: ^3.0.3
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
