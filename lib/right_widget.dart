@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:frp_http_client/controller/app_state.dart';
 import 'package:frp_http_client/down_frpc_button.dart';
 import 'package:get/get.dart';
@@ -139,19 +139,19 @@ class RightWidget extends StatelessWidget {
     );
   }
 
-  Column _buildDownloadTip(BuildContext context) {
+  Widget _buildDownloadTip(BuildContext context) {
     final isWindows = kDebugMode ? true : Platform.isWindows;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DefaultTextStyle(
-          style: DefaultTextStyle.of(context).style.copyWith(
-                fontSize: 16,
-                // color: colorScheme.error,
-              ),
-          child: Builder(builder: (context) {
-            return RichText(
+    return DefaultTextStyle(
+      style: DefaultTextStyle.of(context).style.copyWith(
+            fontSize: 16,
+            // color: colorScheme.error,
+          ),
+      child: Builder(builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
               text: TextSpan(
                 style: DefaultTextStyle.of(context).style,
                 children: [
@@ -208,12 +208,60 @@ class RightWidget extends StatelessWidget {
                   ]
                 ],
               ),
-            );
-          }),
-        ),
-        const SizedBox(height: 8),
-        const DownFrpcButton(),
-      ],
+            ),
+            const SizedBox(height: 8),
+            const DownFrpcButton(),
+            const Spacer(),
+            RichText(
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Tooltip(
+                      message: 'https://github.com/yanhao98/frp-http-flutter-client',
+                      child: Text.rich(
+                        TextSpan(
+                          text: '本软件',
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrl(Uri.parse(
+                                  'https://github.com/yanhao98/frp-http-flutter-client'));
+                            },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const TextSpan(text: '和 frpc 程序都是开源的。关于 frpc 程序被误判为病毒的问题，'),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Tooltip(
+                      message: '点击查看 frpc 程序被误判为病毒的问题。\nhttps://github.com/fatedier/frp/issues/3272',
+                      child: Text.rich(
+                        TextSpan(
+                          text: '点击这里',
+                          style: DefaultTextStyle.of(context).style.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              launchUrl(Uri.parse(
+                                  'https://github.com/fatedier/frp/issues/3272'));
+                            },
+                        ),
+                      ),
+                    ),
+                  ),
+                  const TextSpan(text: '查看解释。'),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
