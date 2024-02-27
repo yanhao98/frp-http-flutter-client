@@ -5,10 +5,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frp_http_client/controller/app_state.dart';
+import 'package:frp_http_client/controller/tunnel.dart';
 import 'package:frp_http_client/down_frpc_button.dart';
 import 'package:get/get.dart';
 import 'package:separated_row/separated_row.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'model/network_tunnel.dart';
 
 class RightWidget extends StatelessWidget {
   const RightWidget({super.key});
@@ -26,116 +29,106 @@ class RightWidget extends StatelessWidget {
           child: Obx(
             () {
               if (!AppState.to.ready.value) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const Center(child: CircularProgressIndicator());
               }
               if (AppState.to.frpcVersion.value == null) {
                 return _buildDownloadTip(context);
               }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SeparatedRow(
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8),
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('创建穿透'),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextField(
-                                      controller: TextEditingController()
-                                        ..text = '127.0.0.1',
-                                      decoration: const InputDecoration(
-                                        labelText: '内网地址',
-                                      ),
-                                    ),
-                                    const TextField(
-                                      decoration: InputDecoration(
-                                        labelText: '内网端口',
-                                        hintText: '请输入内网端口',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('取消'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('确定'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: const Text('创建穿透'),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {},
-                        child: const Text('全部启动'),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {},
-                        child: const Text('全部停止'),
-                      ),
-                      OutlinedButton(
-                        onPressed: () async {
-                          /* final process = await Process.start(
-                        AppState.to.executableFilePath.value,
-                        [
-                          'http',
-                          '--server-addr=146.56.128.30',
-                          '--server-port=7000',
-                          '--local-ip=127.0.0.1',
-                          '--local-port=80',
-                          '--sd=flutter-dev',
-                          '--proxy-name=flutter-dev'
-                        ],
-                      );
-
-                      // 监听标准输出流
-                      process.stdout.transform(utf8.decoder).listen((data) {
-                        debugPrint('标准输出: $data');
-                      });
-
-                      // 监听错误输出流
-                      process.stderr.transform(utf8.decoder).listen((data) {
-                        debugPrint('错误输出: $data');
-                      });
-
-                      final exitCode = await process.exitCode;
-                      debugPrint('Exit code: $exitCode'); */
-                        },
-                        child: const Text('测试按钮'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: _buildList(context),
-                  )
-                ],
-              );
+              return _buildRightContent(context);
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRightContent(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SeparatedRow(
+          separatorBuilder: (context, index) => const SizedBox(width: 8),
+          children: [
+            OutlinedButton(
+              onPressed: () {
+                _clickAdd(context);
+              },
+              child: const Text('创建穿透'),
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              child: const Text('全部启动'),
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              child: const Text('全部停止'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: _buildList(context),
+        )
+      ],
+    );
+  }
+
+  void _clickAdd(BuildContext context) {
+    final TextEditingController localIpController = TextEditingController()
+      ..text = '127.0.0.1';
+    final TextEditingController localPortController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('创建穿透'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: localIpController,
+                decoration: const InputDecoration(
+                  labelText: '内网地址',
+                ),
+              ),
+              TextField(
+                autofocus: true,
+                controller: localPortController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  labelText: '内网端口',
+                  hintText: '输入要穿透的端口',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {
+                final localIp = localIpController.text;
+                final localPort = localPortController.text;
+                if (localIp.isEmpty || localPort.isEmpty) {
+                  return;
+                }
+                TunnelController.to.addTunnel(NetworkTunnel(
+                  localIp: localIp,
+                  localPort: int.parse(localPort),
+                ));
+                Navigator.of(context).pop();
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -219,7 +212,8 @@ class RightWidget extends StatelessWidget {
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
                     child: Tooltip(
-                      message: 'https://github.com/yanhao98/frp-http-flutter-client',
+                      message:
+                          'https://github.com/yanhao98/frp-http-flutter-client',
                       child: Text.rich(
                         TextSpan(
                           text: '本软件',
@@ -239,7 +233,8 @@ class RightWidget extends StatelessWidget {
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
                     child: Tooltip(
-                      message: '点击查看 frpc 程序被误判为病毒的问题。\nhttps://github.com/fatedier/frp/issues/3272',
+                      message:
+                          '点击查看 frpc 程序被误判为病毒的问题。\nhttps://github.com/fatedier/frp/issues/3272',
                       child: Text.rich(
                         TextSpan(
                           text: '点击这里',
@@ -266,75 +261,111 @@ class RightWidget extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context) {
-    return DataTable(
-      border: TableBorder.all(),
-      columns: const <DataColumn>[
-        DataColumn(
-          label: Text('状态'),
-        ),
-        DataColumn(
-          label: Text('内网地址'),
-        ),
-        DataColumn(
-          label: Text('访问地址 http(s)://'),
-        ),
-        DataColumn(
-          label: Text('操作'),
-        ),
-      ],
-      rows: [
-        ...List.generate(
-          0,
-          (index) => DataRow(
-            cells: [
-              const DataCell(
-                Text('已启动'),
-              ),
-              const DataCell(
-                Text('127.0.0.1:8080'),
-              ),
-              DataCell(
-                Tooltip(
-                  message: "点击复制",
-                  child: InkWell(
-                    onTap: () {
-                      Clipboard.setData(
-                        ClipboardData(
-                            text: "http://161A51D1-8080.frp.oo1.dev"
-                                .toLowerCase()),
-                      );
-                      const snackBar = SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        content: Text('已复制到剪贴板'),
-                        duration: Duration(seconds: 3),
-                      );
-                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    },
-                    child: Text("161A51D1-8080.frp.oo1.dev".toLowerCase()),
-                  ),
-                ),
-              ),
-              DataCell(
-                SeparatedRow(
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 8),
-                  children: [
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: Text(index.isEven ? '停止' : '启动'),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {},
-                      child: const Text('删除'),
-                    ),
-                  ],
-                ),
-              ),
+    // https://github.com/jonataslaw/getx/blob/master/documentation/zh_CN/state_management.md#getbuilder-vs-getx-vs-obx-vs-mixinbuilder
+    return GetBuilder(
+      init: TunnelController(),
+      builder: (controller) {
+        return DataTable(
+            border: TableBorder.all(),
+            columns: const <DataColumn>[
+              DataColumn(label: Text('状态')),
+              DataColumn(label: Text('内网地址')),
+              DataColumn(label: Text('访问地址 http(s)://')),
+              DataColumn(label: Text('操作')),
             ],
+            rows: controller.tunnels.map((tunnel) {
+              return DataRow(
+                cells: [
+                  DataCell(Text('已启动')),
+                  DataCell(Text('${tunnel.localIp}:${tunnel.localPort}')),
+                  DataCell(
+                    Tooltip(
+                      message: "点击复制",
+                      child: InkWell(
+                        onTap: () {
+                          Clipboard.setData(
+                            ClipboardData(
+                                text: "http://161A51D1-8080.frp.oo1.dev"
+                                    .toLowerCase()),
+                          );
+                          const snackBar = SnackBar(
+                            behavior: SnackBarBehavior.floating,
+                            content: Text('已复制到剪贴板'),
+                            duration: Duration(seconds: 3),
+                          );
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        },
+                        child: Text("161A51D1-8080.frp.oo1.dev".toLowerCase()),
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    SeparatedRow(
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 8),
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {},
+                          child: Text('停止'),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {},
+                          child: const Text('删除'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }).toList());
+      },
+    );
+
+    var rows = List.generate(
+      0,
+      (index) => DataRow(
+        cells: [
+          const DataCell(Text('已启动')),
+          const DataCell(Text('127.0.0.1:8080')),
+          DataCell(
+            Tooltip(
+              message: "点击复制",
+              child: InkWell(
+                onTap: () {
+                  Clipboard.setData(
+                    ClipboardData(
+                        text: "http://161A51D1-8080.frp.oo1.dev".toLowerCase()),
+                  );
+                  const snackBar = SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    content: Text('已复制到剪贴板'),
+                    duration: Duration(seconds: 3),
+                  );
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                child: Text("161A51D1-8080.frp.oo1.dev".toLowerCase()),
+              ),
+            ),
           ),
-        )
-      ],
+          DataCell(
+            SeparatedRow(
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+              children: [
+                OutlinedButton(
+                  onPressed: () {},
+                  child: Text(index.isEven ? '停止' : '启动'),
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  child: const Text('删除'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

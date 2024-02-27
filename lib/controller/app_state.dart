@@ -71,13 +71,13 @@ class AppState extends GetxController {
       frpcDirectory = path.join(dir, 'frpc');
     }
     Directory(frpcDirectory).createSync(recursive: true);
-    
-    if (kDebugMode) {
+
+    /* if (kDebugMode) {
       final file = File(frpcExecutablePath);
       if (file.existsSync()) {
         file.deleteSync();
       }
-    }
+    } */
   }
 }
 

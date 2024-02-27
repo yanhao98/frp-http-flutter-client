@@ -1,18 +1,17 @@
-enum NetworkTunnelStatus {
+enum TunnelStatus {
   notStarted('未启动'),
   starting('启动中');
 
   final String status;
-  const NetworkTunnelStatus(this.status);
+  const TunnelStatus(this.status);
 }
 
-class NetworkTunnelItem {
-  // 内网地址
+class NetworkTunnel {
   String localIp;
-  // 内网端口
   int localPort;
+  TunnelStatus status = TunnelStatus.notStarted;
 
-  NetworkTunnelItem({
+  NetworkTunnel({
     required this.localIp,
     required this.localPort,
   });

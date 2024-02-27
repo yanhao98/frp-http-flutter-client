@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import './controller/app_state.dart';
+import 'controller/app_state.dart';
 
 var count = 0;
 
@@ -33,7 +33,7 @@ class LeftWidget extends StatelessWidget {
                     return Text(AppState.to.frpcVersion.value ?? '');
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),
