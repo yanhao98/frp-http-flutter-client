@@ -57,11 +57,15 @@ class RightWidget extends StatelessWidget {
               child: const Text('创建穿透'),
             ),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                TunnelController.to.startAllTunnels();
+              },
               child: const Text('全部启动'),
             ),
             OutlinedButton(
-              onPressed: () {},
+              onPressed: () {
+                TunnelController.to.stopAllTunnels();
+              },
               child: const Text('全部停止'),
             ),
           ],
@@ -309,11 +313,15 @@ class RightWidget extends StatelessWidget {
                                 child: const Text('启动'),
                               )
                             : OutlinedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  TunnelController.to.stopTunnel(tunnel);
+                                },
                                 child: const Text('停止'),
                               ),
                         OutlinedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            TunnelController.to.removeTunnel(tunnel);
+                          },
                           child: const Text('删除'),
                         ),
                       ],

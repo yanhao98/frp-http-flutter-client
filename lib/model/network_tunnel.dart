@@ -4,17 +4,17 @@ import 'package:frp_http_client/controller/app_state.dart';
 
 enum TunnelStatus {
   notStarted('未启动'),
-  starting('启动中');
+  running('运行中');
 
   final String name;
   const TunnelStatus(this.name);
 }
 
 class NetworkTunnel {
-  String localIp;
-  int localPort;
+  final String localIp;
+  final int localPort;
   TunnelStatus status = TunnelStatus.notStarted;
-  late Process process;
+  Process? process;
 
   String get publicHostname =>
       '$subdomain.${AppState.to.frpsServer}'.toLowerCase();

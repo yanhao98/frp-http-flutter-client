@@ -39,8 +39,8 @@ class TunnelController extends GetxController {
     }
 
     await processResult.then((result) {
-      debugPrint(result.stderr);
-      debugPrint(result.stdout);
+      debugPrint('[killall] result.stderr: ${result.stderr}');
+      debugPrint('[killall] result.stdout: ${result.stdout}');
       debugPrint('[killall] exitCode: ${result.exitCode}');
     });
   }
@@ -76,7 +76,7 @@ class TunnelController extends GetxController {
     if (tunnel.status != TunnelStatus.notStarted) {
       return;
     }
-    debugPrint('${AppState.to.frpsServerIp}');
+
     Process.start(AppState.to.frpcExecutablePath, [
       'http',
       '--server-addr=${AppState.to.frpsServerIp}',
@@ -86,6 +86,12 @@ class TunnelController extends GetxController {
       '--sd=${tunnel.subdomain}',
       '--proxy-name=${tunnel.subdomain}',
     ]).then((process) async {
+      debugPrint('[startTunnel] process.pid: ${process.pid}');
+
+      tunnel.process = process;
+      tunnel.status = TunnelStatus.running;
+      update();
+
       // 监听标准输出流
       process.stdout.transform(utf8.decoder).listen((data) {
         debugPrint('标准输出: $data');
@@ -96,9 +102,36 @@ class TunnelController extends GetxController {
         debugPrint('错误输出: $data');
       });
 
-      final exitCode = await process.exitCode;
-      debugPrint('Exit code: $exitCode');
+      process.exitCode.then((exitCode) {
+        debugPrint('tunnel.localPort: ${tunnel.localPort}');
+        debugPrint('exitCode: $exitCode');
+        if (tunnels.contains(tunnel)) {
+          tunnel.status = TunnelStatus.notStarted;
+          update();
+        }
+      });
     });
+  }
+
+  void stopTunnel(NetworkTunnel tunnel) {
+    tunnel.process?.kill();
+  }
+
+  void stopAllTunnels() {
+    for (var tunnel in tunnels) {
+      stopTunnel(tunnel);
+    }
+  }
+
+  void startAllTunnels() {
+    for (var tunnel in tunnels) {
+      startTunnel(tunnel);
+    }
+  }
+
+  void removeTunnel(NetworkTunnel tunnel) {
+    tunnels.remove(tunnel);
+    tunnel.process?.kill();
     update();
   }
 }
