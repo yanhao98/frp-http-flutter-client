@@ -55,6 +55,7 @@ class TunnelController extends GetxController {
     );
 
     _restoreTunnels();
+    debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
     startAllTunnels();
 
     super.onInit();
