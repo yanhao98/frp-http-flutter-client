@@ -63,7 +63,16 @@ class AppState extends GetxController {
     } else if (Platform.isWindows) {
       url = 'https://dl.19980901.xyz/frpc_windows_$systemArch.exe';
     }
-    await Dio().download(url, frpcExecutablePath);
+    // TODO: 还需要处理：下载到一半退出了。
+    await Dio().download(
+      url,
+      frpcExecutablePath,
+      options: Options(
+        sendTimeout: const Duration(minutes: 5),
+        receiveTimeout: const Duration(minutes: 60),
+      ),
+    );
+
     if (Platform.isMacOS) {
       await Process.run('chmod', ['+x', frpcExecutablePath]);
     }
