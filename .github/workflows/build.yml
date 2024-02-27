@@ -65,7 +65,7 @@ jobs:
               esac
           echo "artifact_path=${artifact_directory}/${artifact_filename}" >> $GITHUB_OUTPUT
 
-          ls -al .
+          ls -alh .
       # - name: Archive
       #   id: archive
       #   run: |
@@ -89,7 +89,7 @@ jobs:
       #   files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
 
       - name: Send mail
-        # if: false
+        if: false
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
