@@ -18,6 +18,8 @@ class RightWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.put(TunnelController());
+
     final colorScheme = Theme.of(context).colorScheme;
 
     return Expanded(
@@ -71,10 +73,70 @@ class RightWidget extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        Expanded(
-          child: _buildList(context),
-        )
+        Expanded(child: _buildList(context))
       ],
+    );
+  }
+
+  Widget _buildList(BuildContext context) {
+    return DataTable(
+      border: TableBorder.all(),
+      columns: const <DataColumn>[
+        DataColumn(label: Text('状态')),
+        DataColumn(label: Text('内网地址')),
+        DataColumn(label: Text('访问地址 http(s)://')),
+        DataColumn(label: Text('操作')),
+      ],
+      rows: TunnelController.to.tunnels.map((tunnel) {
+        return DataRow(
+          cells: [
+            DataCell(Text(tunnel.status.name)),
+            DataCell(Text('${tunnel.localIp}:${tunnel.localPort}')),
+            DataCell(
+              Tooltip(
+                message: "点击复制",
+                child: InkWell(
+                  child: Text(tunnel.publicHostname),
+                  onTap: () {
+                    Clipboard.setData(
+                        ClipboardData(text: tunnel.publicHostname));
+                    const snackBar = SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      content: Text('已复制到剪贴板'),
+                      duration: Duration(seconds: 3),
+                    );
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
+                ),
+              ),
+            ),
+            DataCell(
+              SeparatedRow(
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      tunnel.status == TunnelStatus.notStarted
+                          ? TunnelController.to.startTunnel(tunnel)
+                          : TunnelController.to.stopTunnel(tunnel);
+                    },
+                    child: tunnel.status == TunnelStatus.notStarted
+                        ? const Text('启动')
+                        : const Text('停止'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      TunnelController.to.removeTunnel(tunnel);
+                    },
+                    child: const Text('删除'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -261,76 +323,6 @@ class RightWidget extends StatelessWidget {
           ],
         );
       }),
-    );
-  }
-
-  Widget _buildList(BuildContext context) {
-    return GetBuilder(
-      init: TunnelController(),
-      builder: (controller) {
-        return DataTable(
-            border: TableBorder.all(),
-            columns: const <DataColumn>[
-              DataColumn(label: Text('状态')),
-              DataColumn(label: Text('内网地址')),
-              DataColumn(label: Text('访问地址 http(s)://')),
-              DataColumn(label: Text('操作')),
-            ],
-            rows: controller.tunnels.map((tunnel) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(tunnel.status.name)),
-                  DataCell(Text('${tunnel.localIp}:${tunnel.localPort}')),
-                  DataCell(
-                    Tooltip(
-                      message: "点击复制",
-                      child: InkWell(
-                        child: Text(tunnel.publicHostname),
-                        onTap: () {
-                          Clipboard.setData(
-                              ClipboardData(text: tunnel.publicHostname));
-                          const snackBar = SnackBar(
-                            behavior: SnackBarBehavior.floating,
-                            content: Text('已复制到剪贴板'),
-                            duration: Duration(seconds: 3),
-                          );
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        },
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    SeparatedRow(
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 8),
-                      children: [
-                        tunnel.status == TunnelStatus.notStarted
-                            ? OutlinedButton(
-                                onPressed: () {
-                                  TunnelController.to.startTunnel(tunnel);
-                                },
-                                child: const Text('启动'),
-                              )
-                            : OutlinedButton(
-                                onPressed: () {
-                                  TunnelController.to.stopTunnel(tunnel);
-                                },
-                                child: const Text('停止'),
-                              ),
-                        OutlinedButton(
-                          onPressed: () {
-                            TunnelController.to.removeTunnel(tunnel);
-                          },
-                          child: const Text('删除'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }).toList());
-      },
     );
   }
 }

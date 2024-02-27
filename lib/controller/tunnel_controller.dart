@@ -3,24 +3,24 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:frp_http_client/common/constants.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../model/network_tunnel.dart';
 import './app_state.dart';
 
-// const _storageContainer = 'frp-http-client-get-storage';
 const _storageKey = 'tunnels';
 
 class TunnelController extends GetxController {
-  final _box = GetStorage(/* _storageContainer */);
+  final _box = GetStorage(kStorageContainer);
 
   static TunnelController get to => Get.find();
 
   // https://github.dev/tadaspetra/getx_examples/tree/master/todo_app
   // https://github.dev/carnevalli/getx_todo_app_tutorial
   // https://github.com/jonataslaw/getx/blob/master/documentation/zh_CN/state_management.md#getbuilder-vs-getx-vs-obx-vs-mixinbuilder
-  final tunnels = <NetworkTunnel>[]; // no need for .obs
+  final tunnels = <NetworkTunnel>[].obs;
   late AppLifecycleListener _appLifecycleListener;
 
   Future<AppExitResponse> _onExitRequested() async {
@@ -57,7 +57,7 @@ class TunnelController extends GetxController {
       onExitRequested: _onExitRequested,
     );
 
-    _restoreTunnels();
+    // _restoreTunnels();
     debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
     startAllTunnels();
 
@@ -73,10 +73,7 @@ class TunnelController extends GetxController {
 
   void addTunnel(NetworkTunnel tunnel) {
     tunnels.add(tunnel);
-    // GetBuilder only rebuilds on update()
-    // startTunnel(tunnel);
-    update();
-    _saveTunnels();
+    startTunnel(tunnel);
   }
 
   void startTunnel(NetworkTunnel tunnel) {
@@ -97,7 +94,6 @@ class TunnelController extends GetxController {
 
       tunnel.process = process;
       tunnel.status = TunnelStatus.running;
-      update();
 
       // 监听标准输出流
       process.stdout.transform(utf8.decoder).listen((data) {
@@ -114,7 +110,6 @@ class TunnelController extends GetxController {
         debugPrint('exitCode: $exitCode');
         if (tunnels.contains(tunnel)) {
           tunnel.status = TunnelStatus.notStarted;
-          update();
         }
       });
     });
@@ -139,8 +134,6 @@ class TunnelController extends GetxController {
   void removeTunnel(NetworkTunnel tunnel) {
     tunnels.remove(tunnel);
     tunnel.process?.kill();
-    update();
-    _saveTunnels();
   }
 
   void _saveTunnels() {
