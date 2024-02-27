@@ -9,8 +9,11 @@ import 'package:get_storage/get_storage.dart';
 import '../model/network_tunnel.dart';
 import './app_state.dart';
 
+// const _storageContainer = 'frp-http-client-get-storage';
+const _storageKey = 'tunnels';
+
 class TunnelController extends GetxController {
-  final _box = GetStorage('tunnels', AppState.to.frpcDirectory);
+  final _box = GetStorage(/* _storageContainer */);
 
   static TunnelController get to => Get.find();
 
@@ -71,7 +74,8 @@ class TunnelController extends GetxController {
   void addTunnel(NetworkTunnel tunnel) {
     tunnels.add(tunnel);
     // GetBuilder only rebuilds on update()
-    update();
+    startTunnel(tunnel);
+    // update();
     _saveTunnels();
   }
 
@@ -141,12 +145,15 @@ class TunnelController extends GetxController {
 
   void _saveTunnels() {
     debugPrint('[saveTunnels] tunnels.length: ${tunnels.length}');
-    _box.write('tunnels', tunnels);
+    _box.write(_storageKey, tunnels);
   }
 
   void _restoreTunnels() {
-    if (_box.hasData('tunnels')) {
-      final List<dynamic> data = _box.read('tunnels');
+    debugPrint('_box.read(_storageKey): ${_box.read(_storageKey)}');
+
+    if (_box.hasData(_storageKey)) {
+      debugPrint('🤡 _restoreTunnels');
+      final List<dynamic> data = _box.read(_storageKey);
       tunnels.addAll(data.map((e) => NetworkTunnel.fromJson(e)));
     }
   }
