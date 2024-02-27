@@ -11,7 +11,7 @@ class AppState extends GetxController {
   static AppState get to => Get.find();
 
   RxBool ready = false.obs;
-  RxString frpsServer = 'frp.oo1.dev'.obs;
+  RxString frpsServer = 'nwct.dev'.obs;
   get frpsServerIp => 'server-ip.$frpsServer';
   late String systemArch = '';
   late String subdomainPrefix;
