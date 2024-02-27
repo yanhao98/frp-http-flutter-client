@@ -47,11 +47,6 @@ class TunnelController extends GetxController {
     });
   }
 
-  void _saveTunnels() {
-    debugPrint('[saveTunnels] tunnels.length: ${tunnels.length}');
-    _box.write('tunnels', tunnels);
-  }
-
   @override
   void onInit() {
     _killall();
@@ -59,10 +54,8 @@ class TunnelController extends GetxController {
       onExitRequested: _onExitRequested,
     );
 
-    if (_box.hasData('tunnels')) {
-      final List<dynamic> data = _box.read('tunnels');
-      tunnels.addAll(data.map((e) => NetworkTunnel.fromJson(e)));
-    }
+    _restoreTunnels();
+    startAllTunnels();
 
     super.onInit();
   }
@@ -143,5 +136,17 @@ class TunnelController extends GetxController {
     tunnel.process?.kill();
     update();
     _saveTunnels();
+  }
+
+  void _saveTunnels() {
+    debugPrint('[saveTunnels] tunnels.length: ${tunnels.length}');
+    _box.write('tunnels', tunnels);
+  }
+
+  void _restoreTunnels() {
+    if (_box.hasData('tunnels')) {
+      final List<dynamic> data = _box.read('tunnels');
+      tunnels.addAll(data.map((e) => NetworkTunnel.fromJson(e)));
+    }
   }
 }
