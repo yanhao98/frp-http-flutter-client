@@ -11,26 +11,33 @@ class AppState extends GetxController {
   static AppState get to => Get.find();
 
   RxBool ready = false.obs;
-  RxString frpsServer = 'fro.oo1.dev'.obs;
+  RxString frpsServer = 'frp.oo1.dev'.obs;
+  get frpsServerIp => 'server-ip.$frpsServer';
   late String systemArch = '';
   late String subdomainPrefix;
   late String frpcDirectory;
   Rx<String?> frpcVersion = Rx(null);
-  String get frpcExecutablePath {
+  String get frpcExecutableFilename {
     late String filename;
     if (Platform.isMacOS) {
       filename = 'frpc_darwin_$systemArch';
     } else if (Platform.isWindows) {
       filename = 'frpc_windows_$systemArch.exe';
     }
-    return path.join(frpcDirectory, filename);
+    return filename;
+  }
+
+  String get frpcExecutablePath {
+    return path.join(frpcDirectory, frpcExecutableFilename);
   }
 
   @override
   Future<void> onInit() async {
     var deviceInfo = await _getDeviceInfo();
     systemArch = deviceInfo.arch;
-    subdomainPrefix = deviceInfo.systemId;
+    subdomainPrefix = deviceInfo.systemId
+        .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
+        .substring(0, 8);
     await _setWorkingDirectory();
     await checkFrpc();
     ready.value = true;

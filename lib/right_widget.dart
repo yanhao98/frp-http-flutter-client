@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frp_http_client/controller/app_state.dart';
-import 'package:frp_http_client/controller/tunnel.dart';
+import 'package:frp_http_client/controller/tunnel_controller.dart';
 import 'package:frp_http_client/down_frpc_button.dart';
 import 'package:get/get.dart';
 import 'package:separated_row/separated_row.dart';
@@ -261,7 +261,6 @@ class RightWidget extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context) {
-    // https://github.com/jonataslaw/getx/blob/master/documentation/zh_CN/state_management.md#getbuilder-vs-getx-vs-obx-vs-mixinbuilder
     return GetBuilder(
       init: TunnelController(),
       builder: (controller) {
@@ -276,18 +275,16 @@ class RightWidget extends StatelessWidget {
             rows: controller.tunnels.map((tunnel) {
               return DataRow(
                 cells: [
-                  DataCell(Text('已启动')),
+                  DataCell(Text(tunnel.status.name)),
                   DataCell(Text('${tunnel.localIp}:${tunnel.localPort}')),
                   DataCell(
                     Tooltip(
                       message: "点击复制",
                       child: InkWell(
+                        child: Text(tunnel.publicHostname),
                         onTap: () {
                           Clipboard.setData(
-                            ClipboardData(
-                                text: "http://161A51D1-8080.frp.oo1.dev"
-                                    .toLowerCase()),
-                          );
+                              ClipboardData(text: tunnel.publicHostname));
                           const snackBar = SnackBar(
                             behavior: SnackBarBehavior.floating,
                             content: Text('已复制到剪贴板'),
@@ -296,7 +293,6 @@ class RightWidget extends StatelessWidget {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         },
-                        child: Text("161A51D1-8080.frp.oo1.dev".toLowerCase()),
                       ),
                     ),
                   ),
@@ -305,10 +301,17 @@ class RightWidget extends StatelessWidget {
                       separatorBuilder: (context, index) =>
                           const SizedBox(width: 8),
                       children: [
-                        OutlinedButton(
-                          onPressed: () {},
-                          child: Text('停止'),
-                        ),
+                        tunnel.status == TunnelStatus.notStarted
+                            ? OutlinedButton(
+                                onPressed: () {
+                                  TunnelController.to.startTunnel(tunnel);
+                                },
+                                child: const Text('启动'),
+                              )
+                            : OutlinedButton(
+                                onPressed: () {},
+                                child: const Text('停止'),
+                              ),
                         OutlinedButton(
                           onPressed: () {},
                           child: const Text('删除'),
@@ -320,52 +323,6 @@ class RightWidget extends StatelessWidget {
               );
             }).toList());
       },
-    );
-
-    var rows = List.generate(
-      0,
-      (index) => DataRow(
-        cells: [
-          const DataCell(Text('已启动')),
-          const DataCell(Text('127.0.0.1:8080')),
-          DataCell(
-            Tooltip(
-              message: "点击复制",
-              child: InkWell(
-                onTap: () {
-                  Clipboard.setData(
-                    ClipboardData(
-                        text: "http://161A51D1-8080.frp.oo1.dev".toLowerCase()),
-                  );
-                  const snackBar = SnackBar(
-                    behavior: SnackBarBehavior.floating,
-                    content: Text('已复制到剪贴板'),
-                    duration: Duration(seconds: 3),
-                  );
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                },
-                child: Text("161A51D1-8080.frp.oo1.dev".toLowerCase()),
-              ),
-            ),
-          ),
-          DataCell(
-            SeparatedRow(
-              separatorBuilder: (context, index) => const SizedBox(width: 8),
-              children: [
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text(index.isEven ? '停止' : '启动'),
-                ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('删除'),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
