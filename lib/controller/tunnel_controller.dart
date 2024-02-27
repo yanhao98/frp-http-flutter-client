@@ -74,8 +74,8 @@ class TunnelController extends GetxController {
   void addTunnel(NetworkTunnel tunnel) {
     tunnels.add(tunnel);
     // GetBuilder only rebuilds on update()
-    startTunnel(tunnel);
-    // update();
+    // startTunnel(tunnel);
+    update();
     _saveTunnels();
   }
 
