@@ -21,7 +21,38 @@ class TunnelController extends GetxController {
   // https://github.dev/carnevalli/getx_todo_app_tutorial
   // https://github.com/jonataslaw/getx/blob/master/documentation/zh_CN/state_management.md#getbuilder-vs-getx-vs-obx-vs-mixinbuilder
   final tunnels = <NetworkTunnel>[].obs;
+  // final tunnels = Rx<List<NetworkTunnel>>([]);
   late AppLifecycleListener _appLifecycleListener;
+
+  @override
+  void onInit() {
+    _killall();
+    _appLifecycleListener =
+        AppLifecycleListener(onExitRequested: _onExitRequested);
+
+    _restoreTunnels();
+    debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
+
+    Future.delayed(Duration.zero, () {
+      startAllTunnels();
+    });
+
+    ever(
+      tunnels,
+      (_) => {
+        debugPrint('💾 tunnels changed'),
+      },
+    );
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    debugPrint('onClose');
+    _appLifecycleListener.dispose();
+    super.onClose();
+  }
 
   Future<AppExitResponse> _onExitRequested() async {
     await _killall();
@@ -50,30 +81,10 @@ class TunnelController extends GetxController {
     });
   }
 
-  @override
-  void onInit() {
-    _killall();
-    _appLifecycleListener = AppLifecycleListener(
-      onExitRequested: _onExitRequested,
-    );
-
-    // _restoreTunnels();
-    debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
-    startAllTunnels();
-
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    debugPrint('onClose');
-    _appLifecycleListener.dispose();
-    super.onClose();
-  }
-
   void addTunnel(NetworkTunnel tunnel) {
     tunnels.add(tunnel);
     startTunnel(tunnel);
+    _saveTunnels();
   }
 
   void startTunnel(NetworkTunnel tunnel) {
@@ -94,6 +105,7 @@ class TunnelController extends GetxController {
 
       tunnel.process = process;
       tunnel.status = TunnelStatus.running;
+      tunnels.refresh();
 
       // 监听标准输出流
       process.stdout.transform(utf8.decoder).listen((data) {
@@ -110,6 +122,7 @@ class TunnelController extends GetxController {
         debugPrint('exitCode: $exitCode');
         if (tunnels.contains(tunnel)) {
           tunnel.status = TunnelStatus.notStarted;
+          tunnels.refresh();
         }
       });
     });
@@ -134,6 +147,7 @@ class TunnelController extends GetxController {
   void removeTunnel(NetworkTunnel tunnel) {
     tunnels.remove(tunnel);
     tunnel.process?.kill();
+    _saveTunnels();
   }
 
   void _saveTunnels() {
