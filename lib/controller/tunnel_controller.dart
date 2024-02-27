@@ -10,7 +10,7 @@ import '../model/network_tunnel.dart';
 import './app_state.dart';
 
 class TunnelController extends GetxController {
-  final _box = GetStorage();
+  final _box = GetStorage('tunnels', AppState.to.frpcDirectory);
 
   static TunnelController get to => Get.find();
 
