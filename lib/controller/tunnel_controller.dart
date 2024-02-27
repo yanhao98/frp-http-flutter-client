@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 import '../model/network_tunnel.dart';
 import './app_state.dart';
 
 class TunnelController extends GetxController {
+  final _box = GetStorage();
+
   static TunnelController get to => Get.find();
 
   // https://github.dev/tadaspetra/getx_examples/tree/master/todo_app
@@ -45,17 +47,23 @@ class TunnelController extends GetxController {
     });
   }
 
+  void _saveTunnels() {
+    debugPrint('[saveTunnels] tunnels.length: ${tunnels.length}');
+    _box.write('tunnels', tunnels);
+  }
+
   @override
   void onInit() {
-    // TODO: GetStorage for persistence
-    if (kDebugMode) {
-      addTunnel(NetworkTunnel(localIp: '127.0.0.1', localPort: 80));
-    }
-
     _killall();
     _appLifecycleListener = AppLifecycleListener(
       onExitRequested: _onExitRequested,
     );
+
+    if (_box.hasData('tunnels')) {
+      final List<dynamic> data = _box.read('tunnels');
+      tunnels.addAll(data.map((e) => NetworkTunnel.fromJson(e)));
+    }
+
     super.onInit();
   }
 
@@ -70,6 +78,7 @@ class TunnelController extends GetxController {
     tunnels.add(tunnel);
     // GetBuilder only rebuilds on update()
     update();
+    _saveTunnels();
   }
 
   void startTunnel(NetworkTunnel tunnel) {
@@ -133,5 +142,6 @@ class TunnelController extends GetxController {
     tunnels.remove(tunnel);
     tunnel.process?.kill();
     update();
+    _saveTunnels();
   }
 }

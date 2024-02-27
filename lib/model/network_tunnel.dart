@@ -21,6 +21,20 @@ class NetworkTunnel {
 
   String get subdomain => '${AppState.to.subdomainPrefix}-$localPort';
 
+  factory NetworkTunnel.fromJson(Map<String, dynamic> json) {
+    return NetworkTunnel(
+      localIp: json['localIp'],
+      localPort: json['localPort'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'localIp': localIp,
+      'localPort': localPort,
+    };
+  }
+
   NetworkTunnel({
     required this.localIp,
     required this.localPort,
