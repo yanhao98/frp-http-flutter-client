@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:frp_http_client/common/constants.dart';
 import 'package:frp_http_client/controller/app_state.dart';
 
 enum TunnelStatus {
@@ -13,18 +14,22 @@ enum TunnelStatus {
 class NetworkTunnel {
   final String localIp;
   final int localPort;
+
+  /// frps服务器域名
+  final String subdomainHost;
+
   TunnelStatus status = TunnelStatus.notStarted;
   Process? process;
 
-  String get publicHostname =>
-      '$subdomain.${AppState.to.frpsServer}'.toLowerCase();
-
-  String get subdomain => '${AppState.to.subdomainPrefix}-$localPort';
+  String get subdomain => '${AppState.to.domainPrefix}-$localPort';
+  String get publicHostname => '$subdomain.$subdomainHost'.toLowerCase();
+  get frpsServerIp => 'server-ip.$subdomainHost';
 
   factory NetworkTunnel.fromJson(Map<String, dynamic> json) {
     return NetworkTunnel(
       localIp: json['localIp'],
       localPort: json['localPort'],
+      subdomainHost: json['subdomainHost'] ?? kDefaultSubdomainHost,
     );
   }
 
@@ -32,11 +37,13 @@ class NetworkTunnel {
     return {
       'localIp': localIp,
       'localPort': localPort,
+      'subdomainHost': subdomainHost,
     };
   }
 
   NetworkTunnel({
     required this.localIp,
     required this.localPort,
+    required this.subdomainHost,
   });
 }

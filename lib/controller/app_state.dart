@@ -11,10 +11,11 @@ class AppState extends GetxController {
   static AppState get to => Get.find();
 
   RxBool ready = false.obs;
-  RxString frpsServer = 'nwct.dev'.obs;
-  get frpsServerIp => 'server-ip.$frpsServer';
+  // RxString frpsServer = 'nwct.dev'.obs;
   late String systemArch = '';
-  late String subdomainPrefix;
+
+  /// 默认是系统的唯一标识的前 8 位
+  late String domainPrefix;
   late String frpcDirectory;
   Rx<String?> frpcVersion = Rx(null);
   String get frpcExecutableFilename {
@@ -35,7 +36,7 @@ class AppState extends GetxController {
   Future<void> onInit() async {
     var deviceInfo = await _getDeviceInfo();
     systemArch = deviceInfo.arch;
-    subdomainPrefix = deviceInfo.systemId
+    domainPrefix = deviceInfo.systemId
         .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
         .substring(0, 8);
     await _setWorkingDirectory();

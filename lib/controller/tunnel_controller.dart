@@ -13,7 +13,7 @@ import './app_state.dart';
 const _storageKey = 'tunnels';
 
 class TunnelController extends GetxController {
-  final _box = GetStorage(kStorageContainer);
+  final _box = GetStorage(kStorageContainer, AppState.to.frpcDirectory);
 
   static TunnelController get to => Get.find();
 
@@ -25,8 +25,9 @@ class TunnelController extends GetxController {
   late AppLifecycleListener _appLifecycleListener;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     _killall();
+    await _box.initStorage;
     _appLifecycleListener =
         AppLifecycleListener(onExitRequested: _onExitRequested);
 
@@ -94,7 +95,7 @@ class TunnelController extends GetxController {
 
     Process.start(AppState.to.frpcExecutablePath, [
       'http',
-      '--server-addr=${AppState.to.frpsServerIp}',
+      '--server-addr=${tunnel.frpsServerIp}',
       '--server-port=7000',
       '--local-ip=${tunnel.localIp}',
       '--local-port=${tunnel.localPort}',

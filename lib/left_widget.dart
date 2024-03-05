@@ -22,10 +22,10 @@ class LeftWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              LeftItem(
+              /* LeftItem(
                 title: const Text('frps 服务器'),
                 subtitle: Obx(() => Text("${AppState.to.frpsServer}")),
-              ),
+              ), */
               LeftItem(
                 title: const Text('frpc 版本'),
                 /* subtitle: Obx(

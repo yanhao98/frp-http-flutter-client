@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frp_http_client/common/constants.dart';
 import 'package:frp_http_client/controller/app_state.dart';
 import 'package:frp_http_client/controller/tunnel_controller.dart';
 import 'package:frp_http_client/down_frpc_button.dart';
@@ -143,6 +144,9 @@ class RightWidget extends StatelessWidget {
   }
 
   void _clickAdd(BuildContext context) {
+    // subdomainHost
+    final TextEditingController subdomainHostController =
+        TextEditingController()..text = kDefaultSubdomainHost;
     final TextEditingController localIpController = TextEditingController()
       ..text = '127.0.0.1';
     final TextEditingController localPortController = TextEditingController();
@@ -154,6 +158,12 @@ class RightWidget extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              TextField(
+                controller: subdomainHostController,
+                decoration: const InputDecoration(
+                  labelText: 'frps服务器域名',
+                ),
+              ),
               TextField(
                 controller: localIpController,
                 decoration: const InputDecoration(
@@ -189,6 +199,7 @@ class RightWidget extends StatelessWidget {
                 TunnelController.to.addTunnel(NetworkTunnel(
                   localIp: localIp,
                   localPort: int.parse(localPort),
+                  subdomainHost: subdomainHostController.text,
                 ));
                 Navigator.of(context).pop();
               },
