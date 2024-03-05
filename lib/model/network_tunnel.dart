@@ -1,3 +1,6 @@
+import 'package:get/get.dart';
+
+import './frpc_log.dart';
 import 'dart:io';
 
 import 'package:frp_http_client/common/constants.dart';
@@ -24,6 +27,8 @@ class NetworkTunnel {
   String get subdomain => '${AppState.to.domainPrefix}-$localPort';
   String get publicHostname => '$subdomain.$subdomainHost'.toLowerCase();
   get frpsServerIp => 'server-ip.$subdomainHost';
+
+  List<FrpcLogBase> logs = <FrpcLogBase>[].obs;
 
   factory NetworkTunnel.fromJson(Map<String, dynamic> json) {
     return NetworkTunnel(

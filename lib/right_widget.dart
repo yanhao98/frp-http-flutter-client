@@ -129,6 +129,12 @@ class RightWidget extends StatelessWidget {
                     ),
                     OutlinedButton(
                       onPressed: () {
+                        debugPrint('tunnel.logs: ${tunnel.logs}');
+                      },
+                      child: const Text('日志'),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
                         TunnelController.to.removeTunnel(tunnel);
                       },
                       child: const Text('删除'),

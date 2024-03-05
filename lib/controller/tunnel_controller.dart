@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:frp_http_client/common/constants.dart';
+import 'package:frp_http_client/model/frpc_log.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -111,11 +112,13 @@ class TunnelController extends GetxController {
       // 监听标准输出流
       process.stdout.transform(utf8.decoder).listen((data) {
         debugPrint('标准输出: $data');
+        tunnel.logs.add(FrpcLogOutput(data: data));
       });
 
       // 监听错误输出流
       process.stderr.transform(utf8.decoder).listen((data) {
         debugPrint('错误输出: $data');
+        tunnel.logs.add(FrpcLogError(data: data));
       });
 
       process.exitCode.then((exitCode) {
