@@ -11,24 +11,22 @@ void openFolder(path) async {
   }
 }
 
-Future<void> killall() async {
-  late Future<ProcessResult> processResult;
+void killall() async {
+  late ProcessResult processResult;
 
   if (Platform.isWindows) {
-    processResult = Process.run(
+    processResult = Process.runSync(
       'taskkill',
       ['/f', '/im', AppState.to.frpcExecutableFilename],
     );
   } else if (Platform.isMacOS) {
-    processResult = Process.run(
+    processResult = Process.runSync(
       'killall',
       [AppState.to.frpcExecutableFilename],
     );
   }
 
-  await processResult.then((result) {
-    debugPrint('[killall] result.stderr: ${result.stderr}');
-    debugPrint('[killall] result.stdout: ${result.stdout}');
-    debugPrint('[killall] exitCode: ${result.exitCode}');
-  });
+  debugPrint('[killall] processResult.stderr: ${processResult.stderr}');
+  debugPrint('[killall] processResult.stdout: ${processResult.stdout}');
+  debugPrint('[killall] exitCode: ${processResult.exitCode}');
 }

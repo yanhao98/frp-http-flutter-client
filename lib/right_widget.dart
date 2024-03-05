@@ -1,3 +1,5 @@
+import 'package:flutter/scheduler.dart';
+
 import './model/frpc_log.dart';
 import 'dart:io';
 
@@ -13,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:separated_row/separated_row.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'common/utils.dart';
 import 'model/network_tunnel.dart';
 
 class RightWidget extends StatelessWidget {
@@ -130,76 +133,7 @@ class RightWidget extends StatelessWidget {
                     ),
                     OutlinedButton(
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text('${tunnel.publicHostname} 的日志'),
-                              content: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.75,
-                                width: MediaQuery.of(context).size.width * 0.95,
-                                child: Obx(
-                                  () => ListView.separated(
-                                    scrollDirection: Axis.vertical,
-                                    itemBuilder: (context, index) {
-                                      final log = tunnel.logs[index];
-                                      return Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                            Radius.circular(4.0),
-                                          ),
-                                          color: (log is FrpcLogError)
-                                              // Colors.greenAccent.shade100;
-                                              // Colors.redAccent.shade100;
-                                              // Colors.yellowAccent.shade100;
-                                              // Colors.blueAccent.shade100;
-                                              ? Colors.redAccent.shade100
-                                              : Colors.white,
-                                        ),
-                                        child: Text(log.text),
-                                        // 点击复制
-                                        /* child: Tooltip(
-                                          message: "点击复制 data",
-                                          child: InkWell(
-                                            // child: Text('type:${log.type} ${log.text}'),
-                                            child: Text(log.text),
-                                            onTap: () {
-                                              Clipboard.setData(ClipboardData(
-                                                  text: log.data));
-                                              const snackBar = SnackBar(
-                                                behavior:
-                                                    SnackBarBehavior.floating,
-                                                content: Text('已复制到剪贴板'),
-                                                duration: Duration(seconds: 3),
-                                              );
-                                              ScaffoldMessenger.of(context)
-                                                  .hideCurrentSnackBar();
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(snackBar);
-                                            },
-                                          ),
-                                        ), */
-                                      );
-                                    },
-                                    separatorBuilder: (context, index) =>
-                                        const SizedBox(height: 2.0),
-                                    itemCount: tunnel.logs.length,
-                                  ),
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('关闭'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                        _showLogsDialog(context, tunnel);
                       },
                       child: const Text('日志'),
                     ),
@@ -216,6 +150,52 @@ class RightWidget extends StatelessWidget {
           );
         }).toList(),
       ),
+    );
+  }
+
+  void _showLogsDialog(BuildContext context, NetworkTunnel tunnel) {
+    final ScrollController scrollController = ScrollController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('${tunnel.publicHostname} 的日志'),
+          content: SizedBox(
+            height: double.maxFinite,
+            width: double.maxFinite,
+            child: Obx(
+              () {
+                // Future.delayed(Duration.zero, () {});
+                // WidgetsBinding.instance.addPostFrameCallback((_) {});
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  scrollController.animateTo(
+                    scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.fastOutSlowIn,
+                  );
+                });
+                return ListView.separated(
+                  controller: scrollController,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) =>
+                      LogItem(log: tunnel.logs[index]),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 2.0),
+                  itemCount: tunnel.logs.length,
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('关闭'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -412,6 +392,59 @@ class RightWidget extends StatelessWidget {
           ],
         );
       }),
+    );
+  }
+}
+
+class LogItem extends StatelessWidget {
+  const LogItem({
+    super.key,
+    required this.log,
+  });
+
+  final FrpcLogBase log;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 4.0, bottom: 4.0, left: 4),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+        // Colors.greenAccent.shade100;
+        // Colors.redAccent.shade100;
+        // Colors.yellowAccent.shade100;
+        // Colors.blueAccent.shade100;
+        color: {
+              'I': Colors.greenAccent.shade100,
+              'W': Colors.yellowAccent.shade100,
+              'E': Colors.redAccent.shade100,
+            }[log.type] ??
+            Colors.white,
+      ),
+      child: Text(log.text),
+      // child: Text(log.type),
+      // 点击复制
+      /* child: Tooltip(
+                        message: "点击复制 data",
+                        child: InkWell(
+                          // child: Text('type:${log.type} ${log.text}'),
+                          child: Text(log.text),
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(
+                                text: log.data));
+                            const snackBar = SnackBar(
+                              behavior:
+                                  SnackBarBehavior.floating,
+                              content: Text('已复制到剪贴板'),
+                              duration: Duration(seconds: 3),
+                            );
+                            ScaffoldMessenger.of(context)
+                                .hideCurrentSnackBar();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          },
+                        ),
+                      ), */
     );
   }
 }
