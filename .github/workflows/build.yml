@@ -2,6 +2,8 @@
 
 on:
   push:
+    branches:
+      - main
 defaults:
   run:
     shell: bash
@@ -22,8 +24,8 @@ jobs:
       #     wmic cpu get AddressWidth
       #     wmic os get osarchitecture
       #   shell: cmd
-      #     # OSArchitecture  
-      #     # 64-bit        
+      #     # OSArchitecture
+      #     # 64-bit
 
       - uses: actions/checkout@v4
       - name: "Setup Flutter"
@@ -38,7 +40,7 @@ jobs:
         id: get-app-name
         run: |
           echo "app-name=$(grep 'name: ' pubspec.yaml | awk '{print $2}')" >> $GITHUB_OUTPUT
-  
+
       - name: Check env
         run: |
           echo "app-name=${{ steps.get-app-name.outputs.app-name }}"
