@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frp_http_client/common/utils.dart';
 import 'package:get/get.dart';
 
 import 'controller/app_state.dart';
@@ -27,11 +28,25 @@ class LeftWidget extends StatelessWidget {
               ),
               LeftItem(
                 title: const Text('frpc 版本'),
-                subtitle: Obx(
+                /* subtitle: Obx(
                   () {
                     debugPrint('[left_widget] count: ${++count}');
                     return Text(AppState.to.frpcVersion.value ?? '');
                   },
+                ), */
+                subtitle: Tooltip(
+                  message: '打开程序所在目录',
+                  child: InkWell(
+                    onTap: () {
+                      openFolder(AppState.to.frpcDirectory);
+                    },
+                    child: Obx(
+                      () {
+                        debugPrint('[left_widget] count: ${++count}');
+                        return Text(AppState.to.frpcVersion.value ?? '');
+                      },
+                    ),
+                  ),
                 ),
               ),
             ],
