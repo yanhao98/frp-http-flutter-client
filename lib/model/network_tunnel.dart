@@ -8,6 +8,7 @@ import 'package:frp_http_client/controller/app_state.dart';
 
 enum TunnelStatus {
   notStarted('未启动'),
+  starting('启动中'),
   running('运行中');
 
   final String name;

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:frp_http_client/common/constants.dart';
+import 'package:frp_http_client/common/utils.dart';
 import 'package:frp_http_client/model/frpc_log.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -27,17 +28,18 @@ class TunnelController extends GetxController {
 
   @override
   Future<void> onInit() async {
-    _killall();
     await _box.initStorage;
+    killall();
     _appLifecycleListener =
         AppLifecycleListener(onExitRequested: _onExitRequested);
 
     _restoreTunnels();
     debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
 
-    Future.delayed(Duration.zero, () {
-      startAllTunnels();
-    });
+    Future.delayed(
+      const Duration(seconds: 3),
+      () => startAllTunnels(),
+    );
 
     ever(
       tunnels,
@@ -57,30 +59,8 @@ class TunnelController extends GetxController {
   }
 
   Future<AppExitResponse> _onExitRequested() async {
-    await _killall();
+    await killall();
     return AppExitResponse.exit;
-  }
-
-  Future<void> _killall() async {
-    late Future<ProcessResult> processResult;
-
-    if (Platform.isWindows) {
-      processResult = Process.run(
-        'taskkill',
-        ['/f', '/im', AppState.to.frpcExecutableFilename],
-      );
-    } else if (Platform.isMacOS) {
-      processResult = Process.run(
-        'killall',
-        [AppState.to.frpcExecutableFilename],
-      );
-    }
-
-    await processResult.then((result) {
-      debugPrint('[killall] result.stderr: ${result.stderr}');
-      debugPrint('[killall] result.stdout: ${result.stdout}');
-      debugPrint('[killall] exitCode: ${result.exitCode}');
-    });
   }
 
   void addTunnel(NetworkTunnel tunnel) {
@@ -93,6 +73,7 @@ class TunnelController extends GetxController {
     if (tunnel.status != TunnelStatus.notStarted) {
       return;
     }
+    tunnel.status = TunnelStatus.starting;
 
     Process.start(AppState.to.frpcExecutablePath, [
       'http',
@@ -112,7 +93,11 @@ class TunnelController extends GetxController {
       // 监听标准输出流
       process.stdout.transform(utf8.decoder).listen((data) {
         debugPrint('标准输出: $data');
-        tunnel.logs.add(FrpcLogOutput(data: data));
+        // tunnel.logs.addAll(data.split('\n').map((e) => FrpcLogOutput(data: e)));
+        tunnel.logs.addAll(data
+            .split('\n')
+            .where((e) => e.isNotEmpty)
+            .map((e) => FrpcLogOutput(data: e)));
       });
 
       // 监听错误输出流
