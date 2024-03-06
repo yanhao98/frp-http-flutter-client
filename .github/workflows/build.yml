@@ -23,16 +23,6 @@ jobs:
           - os: macos-13
           - os: windows-latest
     steps:
-      # - name: "Print OS"
-      #   if: runner.os == 'Windows'
-      #   run: |
-      #     echo %PROCESSOR_ARCHITECTURE%
-      #     wmic cpu get AddressWidth
-      #     wmic os get osarchitecture
-      #   shell: cmd
-      #     # OSArchitecture
-      #     # 64-bit
-
       - uses: actions/checkout@v4
       - name: "Setup Flutter"
         uses: subosito/flutter-action@v2
@@ -50,8 +40,6 @@ jobs:
       - name: Check env
         run: |
           echo "app-name=${{ steps.get-app-name.outputs.app-name }}"
-          echo "send-mail=${{ github.event.inputs.send-mail }}"
-          echo "send-mail=${{ github.event.inputs.send-mail == 'true' }}"
 
       - name: Build
         id: build
@@ -99,7 +87,7 @@ jobs:
       #   files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
 
       - name: Send mail
-        if: contains(github.event.head_commit.message, '[send-mail]') || ${{ github.event.inputs.send-mail == 'true' }}
+        if: ${{ github.event.inputs.send-mail == 'true' || contains(github.event.head_commit.message, '[send-mail]') }}
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
