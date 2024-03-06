@@ -15,6 +15,7 @@ class LeftWidget extends StatelessWidget {
     return SizedBox(
       width: 256 - 56,
       child: Card(
+        margin: const EdgeInsets.all(4).copyWith(top: 0, right: 2),
         elevation: 0,
         color: colorScheme.surfaceVariant.withOpacity(0.3),
         child: Padding(

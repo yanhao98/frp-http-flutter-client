@@ -1,7 +1,16 @@
 import Cocoa
 import FlutterMacOS
 
-class MainFlutterWindow: NSWindow {
+// BitsdojoWindow Add Start
+import bitsdojo_window_macos
+class MainFlutterWindow: BitsdojoWindow {
+  override func bitsdojo_window_configure() -> UInt {
+    return BDW_CUSTOM_FRAME
+    // return BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP
+  }
+// BitsdojoWindow Add End
+
+// class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
     let windowFrame = self.frame

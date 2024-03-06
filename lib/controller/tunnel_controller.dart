@@ -74,6 +74,7 @@ class TunnelController extends GetxController {
       return;
     }
     tunnel.status = TunnelStatus.starting;
+    tunnels.refresh();
 
     Process.start(AppState.to.frpcExecutablePath, [
       'http',

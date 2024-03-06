@@ -1,11 +1,9 @@
-import 'package:flutter/scheduler.dart';
-
-import './model/frpc_log.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:frp_http_client/common/constants.dart';
 import 'package:frp_http_client/controller/app_state.dart';
@@ -15,7 +13,7 @@ import 'package:get/get.dart';
 import 'package:separated_row/separated_row.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'common/utils.dart';
+import './model/frpc_log.dart';
 import 'model/network_tunnel.dart';
 
 class RightWidget extends StatelessWidget {
@@ -27,6 +25,7 @@ class RightWidget extends StatelessWidget {
 
     return Expanded(
       child: Card(
+        margin: const EdgeInsets.all(4).copyWith(top: 0, left: 2),
         elevation: 0,
         color: colorScheme.surfaceVariant.withOpacity(0.3),
         child: Padding(
