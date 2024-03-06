@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 defaults:
   run:
     shell: bash
@@ -91,7 +92,7 @@ jobs:
       #   files: build/linux/x64/release/bundle/MacRecoveryX-${{github.ref_name}}-linux.zip
 
       - name: Send mail
-        if: contains(github.event.head_commit.message, '[send-mail]')
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[send-mail]')
         uses: dawidd6/action-send-mail@v3
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
