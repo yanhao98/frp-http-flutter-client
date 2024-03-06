@@ -50,6 +50,7 @@ jobs:
       - name: Check env
         run: |
           echo "app-name=${{ steps.get-app-name.outputs.app-name }}"
+          echo "send-mail=${{ github.event.inputs.send-mail }}"
 
       - name: Build
         id: build
