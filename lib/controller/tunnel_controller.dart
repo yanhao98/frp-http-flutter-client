@@ -28,10 +28,13 @@ class TunnelController extends GetxController {
 
   @override
   Future<void> onInit() async {
-    killall();
     await _box.initStorage;
-    _appLifecycleListener =
-        AppLifecycleListener(onExitRequested: _onExitRequested);
+    _appLifecycleListener = AppLifecycleListener(
+      onExitRequested: () async {
+        killall();
+        return AppExitResponse.exit;
+      },
+    );
 
     _restoreTunnels();
     debugPrint('[onInit]. tunnels.length: ${tunnels.length}');
@@ -58,11 +61,6 @@ class TunnelController extends GetxController {
     super.onClose();
   }
 
-  Future<AppExitResponse> _onExitRequested() async {
-    killall();
-    return AppExitResponse.exit;
-  }
-
   void addTunnel(NetworkTunnel tunnel) {
     tunnels.add(tunnel);
     startTunnel(tunnel);
@@ -70,6 +68,7 @@ class TunnelController extends GetxController {
   }
 
   void startTunnel(NetworkTunnel tunnel) {
+    debugPrint('[startTunnel] tunnel.subdomainHost: ${tunnel.subdomainHost}');
     if (tunnel.status != TunnelStatus.notStarted) {
       return;
     }
@@ -124,15 +123,14 @@ class TunnelController extends GetxController {
   }
 
   void stopAllTunnels() {
-    killall();
     debugPrint('[stopAllTunnels] tunnels.length: ${tunnels.length}');
     for (var tunnel in tunnels) {
       stopTunnel(tunnel);
     }
+    killall();
   }
 
   void startAllTunnels() {
-    killall();
     for (var tunnel in tunnels) {
       startTunnel(tunnel);
     }

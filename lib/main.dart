@@ -6,10 +6,11 @@ import 'package:frp_http_client/left_widget.dart';
 import 'package:frp_http_client/right_widget.dart';
 import 'package:get/get.dart';
 
+import 'common/utils.dart';
 import 'controller/app_state.dart';
 
 void main() async {
-  // await GetStorage.init(kStorageContainer);
+  killall();
   appWindow.minSize = const Size(1000, 400);
   appWindow.size = const Size(1000, 600);
   runApp(const MyApp());
