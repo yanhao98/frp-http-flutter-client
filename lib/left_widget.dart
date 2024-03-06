@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:frp_http_client/common/utils.dart';
 import 'package:get/get.dart';
@@ -15,7 +17,8 @@ class LeftWidget extends StatelessWidget {
     return SizedBox(
       width: 256 - 56,
       child: Card(
-        margin: const EdgeInsets.all(4).copyWith(top: 0, right: 2),
+        margin: const EdgeInsets.all(4)
+            .copyWith(top: Platform.isMacOS ? 0 : 4, right: 2),
         elevation: 0,
         color: colorScheme.surfaceVariant.withOpacity(0.3),
         child: Padding(
