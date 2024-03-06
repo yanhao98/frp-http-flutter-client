@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:frp_http_client/left_widget.dart';
@@ -24,7 +26,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           // useMaterial3: false,
           ),
-      // home: MoveWindow(child: const MyHomePage()),
       home: const MyHomePage(),
     );
   }
@@ -38,11 +39,16 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          WindowTitleBarBox(
-            child: Row(
-              children: [Expanded(child: MoveWindow()), const WindowButtons()],
+          if (!Platform.isWindows)
+            // Windows 用系统自带的标题栏
+            WindowTitleBarBox(
+              child: Row(
+                children: [
+                  Expanded(child: MoveWindow()),
+                  // const WindowButtons()
+                ],
+              ),
             ),
-          ),
           const Expanded(
             child: Row(
               children: [
@@ -53,20 +59,6 @@ class MyHomePage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class WindowButtons extends StatelessWidget {
-  const WindowButtons({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        MinimizeWindowButton(),
-        MaximizeWindowButton(),
-        CloseWindowButton(),
-      ],
     );
   }
 }
