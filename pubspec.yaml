@@ -41,7 +41,7 @@ dependencies:
   device_info_plus: ^9.1.2
   separated_row: ^3.0.3
   get: ^4.6.6
-  dio: ^5.4.1
+  dio: ^5.4.2+1
   separated_column: ^3.0.3
   url_launcher: ^6.2.5
   get_storage: ^2.1.1
