@@ -7,9 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       send-mail:
-        description: 'Send mail'
+        description: "Send mail"
         type: boolean
         default: false
+  pull_request:
+    branches:
+      - main
 defaults:
   run:
     shell: bash
