@@ -10,11 +10,12 @@ import 'common/utils.dart';
 import 'controller/app_state.dart';
 
 void main() async {
-  killall();
   appWindow.minSize = const Size(1000, 400);
   appWindow.size = const Size(1000, 600);
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
   GetInstance().put(AppState());
+  killall();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
