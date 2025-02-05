@@ -91,7 +91,7 @@ jobs:
 
       - name: Send mail
         if: ${{ github.event.inputs.send-mail == 'true' || contains(github.event.head_commit.message, '[send-mail]') }}
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v4
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
           subject: Flutter CI

@@ -20,7 +20,7 @@ class LeftWidget extends StatelessWidget {
         margin: const EdgeInsets.all(4)
             .copyWith(top: Platform.isMacOS ? 0 : 4, right: 2),
         elevation: 0,
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -77,9 +77,9 @@ class LeftItem extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(2)),
+        borderRadius: const BorderRadius.all(Radius.circular(0)),
       ),
       child: Container(
         padding: const EdgeInsets.all(4),

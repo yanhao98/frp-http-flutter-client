@@ -28,7 +28,7 @@ class RightWidget extends StatelessWidget {
         margin: const EdgeInsets.all(4)
             .copyWith(top: Platform.isMacOS ? 0 : 4, left: 2),
         elevation: 0,
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Obx(
