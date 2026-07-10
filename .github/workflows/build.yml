@@ -26,7 +26,7 @@ jobs:
           - os: macos-14
           - os: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Setup Flutter"
         uses: subosito/flutter-action@v2
         with:
@@ -91,7 +91,7 @@ jobs:
 
       - name: Send mail
         if: ${{ github.event.inputs.send-mail == 'true' || contains(github.event.head_commit.message, '[send-mail]') }}
-        uses: dawidd6/action-send-mail@v4
+        uses: dawidd6/action-send-mail@v18
         with:
           connection_url: ${{secrets.MAIL_CONNECTION}}
           subject: Flutter CI
